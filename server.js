@@ -172,6 +172,13 @@ http.createServer(async (req, res) => {
 
 
 
+
+  if (p==='/api/history/clear' && req.method==='POST') {
+    state.history = [];
+    broadcast();
+    res.writeHead(200,{'Content-Type':'application/json'}); res.end('{"ok":true}'); return;
+  }
+
   if (p==='/api/admin' && req.method==='POST') {
     const b=await body(req);
     if(b.eventName!==undefined)    state.eventName=b.eventName;
