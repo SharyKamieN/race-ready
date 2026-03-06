@@ -91,6 +91,63 @@
 </main>
 <div class="flash" id="flash" style="background:rgba(11,187,68,.35)"></div>
 <script>
+
+// ── i18n ───────────────────────────────────────────────────────
+var LANG = {
+  pl: {
+    judge_instr_idle:  'Naciśnij gdy gotowy do startu zawodnika',
+    judge_instr_ready: 'Gotowy — naciśnij ponownie aby anulować',
+    tv_instr_idle:     'PRESS WHEN TV\'S IS READY',
+    tv_instr_ready:    'Ready — tap again to cancel',
+    all_ready_banner:  'STAND BY — AWAITING GO',
+    not_ready:         'NIE GOTOWY',
+    ready_ok:          'GOTOWY ✓',
+    judge_lbl:         'SĘDZIA',
+    tv_lbl:            'TV / REŻYSER',
+    auto_reset:        '⚠ Auto-reset za: ',
+    waiting:           'Oczekiwanie na: ',
+    signal_sent:       'Sygnał wysłany!',
+    rider_released:    '🟢 ZAWODNIK WYPUSZCZONY!',
+    press_go:          '▶ Naciśnij aby wypuścić zawodnika!',
+    waiting_ready:     'Oczekiwanie na gotowość...',
+    cur_rider:         'Current Rider',
+    next_rider:        'Next Rider',
+    cur_rider2:        'Current Rider 2',
+    next_rider2:       'Next Rider 2',
+    timer_lbl:         'Timer przejazdu',
+    seconds:           's',
+    judge_status_lbl:  'Sędzia',
+    tv_status_lbl:     'TV / Reżyser',
+  },
+  en: {
+    judge_instr_idle:  'Press when ready to start',
+    judge_instr_ready: 'Ready — press again to cancel',
+    tv_instr_idle:     'PRESS WHEN TV\'S IS READY',
+    tv_instr_ready:    'Ready — tap again to cancel',
+    all_ready_banner:  'STAND BY — AWAITING GO',
+    not_ready:         'NOT READY',
+    ready_ok:          'READY ✓',
+    judge_lbl:         'JUDGE',
+    tv_lbl:            'TV / DIRECTOR',
+    auto_reset:        '⚠ Auto-reset in: ',
+    waiting:           'Waiting for: ',
+    signal_sent:       'Signal sent!',
+    rider_released:    '🟢 RIDER RELEASED!',
+    press_go:          '▶ Press to release rider!',
+    waiting_ready:     'Waiting for readiness...',
+    cur_rider:         'Current Rider',
+    next_rider:        'Next Rider',
+    cur_rider2:        'Current Rider 2',
+    next_rider2:       'Next Rider 2',
+    timer_lbl:         'Run timer',
+    seconds:           's',
+    judge_status_lbl:  'Judge',
+    tv_status_lbl:     'TV / Director',
+  }
+};
+var lang = 'pl';
+function t(key) { return (LANG[lang] || LANG.pl)[key] || key; }
+
   let rAt=null, cdi=null, timerInterval=null;
   function tap(){ fetch('/api/judge',{method:'POST'}).catch(()=>{}); }
   function formatT(ms){ const s=Math.floor(ms/1000); return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')+'.'+Math.floor((ms%1000)/100); }
@@ -99,17 +156,19 @@
     // System ON/OFF
     const ov = document.getElementById('sysOverlay');
     ov.style.display = s.systemActive ? 'none' : 'flex';
+    if(s.language) lang=s.language;
     if(s.eventName) document.getElementById('evName').textContent=s.eventName;
     const logo=document.getElementById('logoImg');
     if(s.logoBase64){logo.src=s.logoBase64;logo.style.display='block';}else{logo.style.display='none';}
 
     document.getElementById('btn').className   = s.judgeReady ? 'btn green' : 'btn red';
     document.getElementById('bs').textContent  = s.judgeReady ? 'READY ✓' : 'READY';
-    document.getElementById('instr').textContent = s.judgeReady ? 'Gotowy — naciśnij ponownie aby anulować' : 'Naciśnij gdy gotowy do startu zawodnika';
+    document.getElementById('instr').textContent = s.judgeReady ? t('judge_instr_ready') : t('judge_instr_idle');
     document.getElementById('instr').className = s.judgeReady ? 'instr ok' : 'instr';
     document.getElementById('tvDot').className = s.tvReady ? 'dot green' : 'dot red';
-    document.getElementById('tvTxt').textContent = s.tvReady ? 'TV / REŻYSER: GOTOWY ✓' : 'TV / REŻYSER: NIE GOTOWY';
+    document.getElementById('tvTxt').textContent = s.tvReady ? t('tv_lbl')+': '+t('ready_ok') : t('tv_lbl')+': '+t('not_ready');
     document.getElementById('tvTxt').style.color = s.tvReady ? '#00EE55' : '';
+    document.getElementById('banner').textContent = t('all_ready_banner');
     document.getElementById('banner').className = s.judgeReady&&s.tvReady ? 'banner show' : 'banner';
 
     // Riders
@@ -139,7 +198,7 @@
     if(s.judgeReady&&s.tvReady&&!s.goSignalGiven){if(!rAt){rAt=Date.now();startCD();}}
     else{rAt=null;clearInterval(cdi);cdi=null;cd.textContent='';}
   }
-  function startCD(){clearInterval(cdi);cdi=setInterval(()=>{const r=20-Math.floor((Date.now()-rAt)/1000);document.getElementById('cd').textContent=r>0?'⚠ Auto-reset za: '+r+'s':'';if(r<=0){clearInterval(cdi);rAt=null;}},500);}
+  function startCD(){clearInterval(cdi);cdi=setInterval(()=>{const r=20-Math.floor((Date.now()-rAt)/1000);document.getElementById('cd').textContent=r>0?t('auto_reset')+r+t('seconds'):'';if(r<=0){clearInterval(cdi);rAt=null;}},500);}
   function connect(){const cb=document.getElementById('cb');const es=new EventSource('/events');es.onopen=()=>{cb.textContent='Online';cb.className='conn online';};es.onmessage=e=>apply(JSON.parse(e.data));es.onerror=()=>{cb.textContent='Offline';cb.className='conn offline';es.close();setTimeout(connect,3000);};}
   connect();
 </script>
