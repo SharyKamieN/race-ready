@@ -151,6 +151,26 @@ http.createServer(async (req, res) => {
     resetRound(); broadcast();
     res.writeHead(200,{'Content-Type':'application/json'}); res.end('{"ok":true}'); return;
   }
+  if (p==='/api/timer/stop' && req.method==='POST') {
+    // Freeze elapsed time
+    if (state.timerRunning && state.timerStart) {
+      state.timerElapsed = Date.now() - state.timerStart + (state.timerElapsed || 0);
+    }
+    state.timerRunning = false;
+    state.timerStart   = null;
+    broadcast();
+    res.writeHead(200,{'Content-Type':'application/json'}); res.end('{"ok":true}'); return;
+  }
+
+  if (p==='/api/timer/reset' && req.method==='POST') {
+    state.timerRunning = false;
+    state.timerStart   = null;
+    state.timerElapsed = 0;
+    broadcast();
+    res.writeHead(200,{'Content-Type':'application/json'}); res.end('{"ok":true}'); return;
+  }
+
+
 
   if (p==='/api/admin' && req.method==='POST') {
     const b=await body(req);
