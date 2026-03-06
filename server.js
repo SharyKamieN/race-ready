@@ -31,6 +31,26 @@ let state = {
 
 let clients = [];
 
+// ── AUTH ───────────────────────────────────────────────────────
+const ADMIN_LOGIN    = 'admin';
+const ADMIN_PASSWORD = 'ledciy1063';
+const sessions = new Set(); // active session tokens
+
+function genToken() {
+  return Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2) + Date.now().toString(36);
+}
+function getCookie(req, name) {
+  const h = req.headers.cookie || '';
+  const m = h.split(';').map(c=>c.trim()).find(c=>c.startsWith(name+'='));
+  return m ? m.slice(name.length+1) : null;
+}
+function isAuthed(req) {
+  const token = getCookie(req, 'rr_session');
+  return token && sessions.has(token);
+}
+
+
+
 function pub() {
   return {
     eventName:    state.eventName,
@@ -200,6 +220,48 @@ http.createServer(async (req, res) => {
     if(b.nextRider2!==undefined)    state.nextRider2=b.nextRider2;
     broadcast();
     res.writeHead(200,{'Content-Type':'application/json'}); res.end('{"ok":true}'); return;
+  }
+
+
+  // ── LOGIN / LOGOUT ─────────────────────────────────────────
+  if (p === '/login' && req.method === 'GET') {
+    fs.readFile(path.join(DIR, '/login.html'), (err, data) => {
+      if (err) { res.writeHead(404); res.end('Not found'); return; }
+      res.writeHead(200, {'Content-Type': 'text/html'}); res.end(data);
+    }); return;
+  }
+
+  if (p === '/login' && req.method === 'POST') {
+    body(req).then(raw => {
+      let b = {}; try { b = JSON.parse(raw); } catch(e) {}
+      if (b.login === ADMIN_LOGIN && b.password === ADMIN_PASSWORD) {
+        const token = genToken();
+        sessions.add(token);
+        res.writeHead(200, {
+          'Set-Cookie': 'rr_session=' + token + '; Path=/; HttpOnly; SameSite=Strict',
+          'Content-Type': 'application/json'
+        });
+        res.end('{"ok":true}');
+      } else {
+        res.writeHead(401, {'Content-Type': 'application/json'});
+        res.end('{"ok":false,"error":"Błędny login lub hasło"}');
+      }
+    }); return;
+  }
+
+  if (p === '/logout' && req.method === 'POST') {
+    const token = getCookie(req, 'rr_session');
+    if (token) sessions.delete(token);
+    res.writeHead(200, {
+      'Set-Cookie': 'rr_session=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT',
+      'Content-Type': 'application/json'
+    });
+    res.end('{"ok":true}'); return;
+  }
+
+  // ── ADMIN GUARD ─────────────────────────────────────────────
+  if (p === '/admin' && !isAuthed(req)) {
+    res.writeHead(302, {'Location': '/login'}); res.end(); return;
   }
 
   // Static files — all in same DIR as server.js
