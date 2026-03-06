@@ -69,20 +69,21 @@
     .rst { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #7A8090; cursor: pointer; padding: 7px 16px; border: 1.5px solid #2A3040; border-radius: 6px; background: transparent; font-family: Arial,sans-serif; }
 
     /* msg banner */
-    .msg-banner { width: 100%; max-width: 520px; background: rgba(0,200,255,.1); border: 1.5px solid #00C8FF; border-radius: 8px; padding: 10px 16px; font-size: 13px; font-weight: 700; color: #00C8FF; letter-spacing: 0.05em; display: none; text-align: center; }
-    .msg-banner.show { display: block; }
-
-    .flash { position: fixed; inset: 0; pointer-events: none; z-index: 999; opacity: 0; }
-    .flash.go { animation: fa .6s ease forwards; }
-    @keyframes fa { 0% { opacity: .75; } 100% { opacity: 0; } }
-  
-  .msg-banner.yellow    { background: rgba(255,210,0,0.12);  color: #FFD200; border-color: #FFD200; }
-  .msg-banner.orange    { background: rgba(255,102,0,0.12);  color: #FF6600; border-color: #FF6600; }
-  .msg-banner.red       { background: rgba(204,17,17,0.12);  color: #FF2222; border-color: #CC1111; }
-  .msg-banner.red-blink { background: rgba(204,17,17,0.12);  color: #FF2222; border-color: #CC1111; animation: opblink 1.2s ease-in-out infinite; }
+    .msg-banner {
+    width:100%; padding:12px 20px; border-radius:10px; margin-bottom:8px;
+    text-align:center; font-family:"Arial Black",Arial,sans-serif; font-weight:900;
+    font-size:16px; letter-spacing:0.12em; text-transform:uppercase;
+    display:none;
+  }
+  .msg-banner.show      { display:block; }
+  .msg-banner.yellow    { background:rgba(255,210,0,0.12);  color:#FFD200; border:2px solid #FFD200; }
+  .msg-banner.orange    { background:rgba(255,102,0,0.12);  color:#FF6600; border:2px solid #FF6600; }
+  .msg-banner.red       { background:rgba(204,17,17,0.15);  color:#FF3333; border:2px solid #CC1111; }
+  .msg-banner.red-blink { background:rgba(204,17,17,0.15);  color:#FF3333; border:2px solid #CC1111;
+                          animation:opblink 1.4s ease-in-out infinite; }
   @keyframes opblink {
-    0%, 100% { border-color: #CC1111; box-shadow: 0 0 0px rgba(220,30,30,0); }
-    50%       { border-color: #FF4444; box-shadow: 0 0 16px rgba(255,40,40,0.4); }
+    0%,100% { background:rgba(204,17,17,0.15); box-shadow:0 0 0px rgba(255,30,30,0); }
+    50%     { background:rgba(204,17,17,0.35); box-shadow:0 0 18px rgba(255,40,40,0.5); }
   }
 </style>
 </head>
@@ -299,8 +300,8 @@ function t(key) { return (LANG[lang] || LANG.pl)[key] || key; }
 
     // Admin message
     const mb = document.getElementById('msgBanner');
-    if(s.adminMessage){ mb.textContent=s.adminMessage; mb.className='msg-banner show'; }
-    else { mb.className='msg-banner'; }
+    if(s.adminMessage){ mb.textContent=s.adminMessage; mb.className='msg-banner show '+(s.msgColor||'yellow'); }
+    else { mb.textContent=''; mb.className='msg-banner'; }
 
     // Sync rider inputs (only if not focused)
     const fields = [{id:'cur1',val:s.currentRider1},{id:'cur2',val:s.currentRider2},{id:'next1',val:s.nextRider1},{id:'next2',val:s.nextRider2}];
