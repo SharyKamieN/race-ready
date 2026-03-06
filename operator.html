@@ -13,7 +13,7 @@
     .ev    { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight: 900; font-size: clamp(11px,2vw,16px); color: #00C8FF; text-transform: uppercase; letter-spacing: 0.06em; display: flex; align-items: center; gap: 10px; }
     .ev img { height: 28px; object-fit: contain; display: none; }
     .role  { font-weight: 700; font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: #7A8090; border: 1.5px solid #2A3040; padding: 3px 10px; border-radius: 4px; }
-    .conn  { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; }
+    .conn  { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; width: fit-content; justify-self: end; }
     .conn.online  { background: rgba(11,187,68,.18); color: #00EE55; border: 1px solid #00EE55; }
     .conn.offline { background: rgba(220,30,30,.18); color: #FF4444; border: 1px solid #FF4444; }
 
@@ -269,7 +269,7 @@ function t(key) { return (LANG[lang] || LANG.pl)[key] || key; }
 
     // Run badge
     const rb = document.getElementById('runBadge');
-    if(s.runTotal > 0 || s.runCurrent > 0){
+    if(s.showRun !== false && (s.runTotal > 0 || s.runCurrent > 0)){
       rb.style.display='';
       document.getElementById('runTxt').textContent = s.runTotal > 0 ? s.runCurrent+' / '+s.runTotal : s.runCurrent;
     } else { rb.style.display='none'; }
