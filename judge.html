@@ -76,6 +76,15 @@
     font-size: 11px; color: #2A3040; transition: all 0.3s; line-height: 1;
   }
   .fs-btn:hover { color: #7A8090; border-color: #3A4050; }
+
+  .powered {
+    display: flex; align-items: center; justify-content: center;
+    gap: 6px; padding: 12px 0 8px;
+    opacity: 0.22; transition: opacity 0.3s;
+  }
+  .powered:hover { opacity: 0.5; }
+  .powered span { font-size: 9px; font-weight: 700; letter-spacing: 0.2em;
+                  text-transform: uppercase; color: #fff; white-space: nowrap; }
 </style>
 </head>
 <body>
@@ -278,5 +287,9 @@ function t(key) { return (LANG[lang] || LANG.pl)[key] || key; }
     <div style="font-size:14px;color:#7A8090;text-align:center;font-family:Arial,sans-serif;max-width:280px;">Administrator musi włączyć system w panelu Admin</div>
   </div>
   <button class="fs-btn" id="fsBtn" onclick="toggleFS()" title="Pełny ekran">⛶</button>
+  <div class="powered">
+    <span>Powered by LIVEMOTION</span>
+  </div>
+
 </body>
 </html>
