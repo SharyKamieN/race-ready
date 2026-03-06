@@ -88,7 +88,30 @@
     .slider-knob.on  { left: 28px; background: #000; }
 
     @media (max-width: 640px) { .page { grid-template-columns: 1fr; } .card.full, .power-card { grid-column: 1; } }
-  </style>
+  
+  /* Fast messages */
+  .fast-msgs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 4px; }
+  .fm {
+    border: none; border-radius: 7px; padding: 8px 14px; cursor: pointer;
+    font-family: "Arial Black", Arial, sans-serif; font-weight: 900;
+    font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase;
+    transition: transform 0.1s, opacity 0.15s; user-select: none;
+  }
+  .fm:hover  { transform: scale(1.05); }
+  .fm:active { transform: scale(0.97); }
+  .fm.yellow { background: #FFD200; color: #000; }
+  .fm.orange { background: #FF6600; color: #fff; }
+  .fm.red    { background: #CC1111; color: #fff; }
+  .fm.red-blink { background: #CC1111; color: #fff; animation: softblink 1.2s ease-in-out infinite; }
+  @keyframes softblink {
+    0%, 100% { background: #CC1111; box-shadow: 0 0 0px rgba(220,30,30,0); }
+    50%       { background: #FF2222; box-shadow: 0 0 14px rgba(255,40,40,0.7); }
+  }
+  .fm-section-lbl {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.18em;
+    text-transform: uppercase; color: #7A8090; margin-bottom: 6px; margin-top: 8px;
+  }
+</style>
 </head>
 <body>
 <header>
@@ -141,8 +164,8 @@
       <button class="toggle-btn"        id="btn2" onclick="setRiderMode(2)">2 Zawodników</button>
     </div>
     <div class="run-row">
-      <label>Aktualna runda<input type="number" id="runCurrent" placeholder="0" min="0"></label>
-      <label>Łącznie rund<input type="number"   id="runTotal"   placeholder="0" min="0"></label>
+      <label>Aktualna runda<input type="number" id="runCurrent" placeholder="1" min="1"></label>
+      <label>Łącznie rund<input type="number"   id="runTotal"   placeholder="0" min="0" value=""></label>
     </div>
     <div class="slider-row">
       <span class="slider-label">⏱ Timer przejazdu</span>
@@ -161,11 +184,24 @@
   <!-- ── MESSAGE ── -->
   <div class="card">
     <div class="card-title">💬 Komunikat do sędziego i TV</div>
+
+    <div class="fm-section-lbl">⚡ Szybkie komunikaty</div>
+    <div class="fast-msgs">
+      <button class="fm yellow" onclick="fastMsg('BREAK',         'yellow')">☕ BREAK</button>
+      <button class="fm yellow" onclick="fastMsg('STAND BY',      'yellow')">⏳ STAND BY</button>
+      <button class="fm yellow" onclick="fastMsg('DELAY',         'yellow')">🕐 DELAY</button>
+      <button class="fm orange" onclick="fastMsg('ATTENTION',     'orange')">⚠ ATTENTION</button>
+      <button class="fm orange" onclick="fastMsg('COURSE CHECK',  'orange')">🔍 COURSE CHECK</button>
+      <button class="fm red"    onclick="fastMsg('STOP',          'red')">🛑 STOP</button>
+      <button class="fm red-blink" onclick="fastMsg('EMERGENCY',  'red-blink')">🚨 EMERGENCY</button>
+    </div>
+
+    <div class="fm-section-lbl" style="margin-top:12px;">✏ Własny komunikat</div>
     <div class="msg-row">
       <input type="text" id="adminMsg" placeholder="np. Opóźnienie 5 min, czekamy...">
       <button class="save-btn" onclick="sendMessage()">Wyślij</button>
     </div>
-    <button class="reset-btn" onclick="clearMessage()" style="align-self:flex-start">✕ Wyczyść</button>
+    <button class="reset-btn" onclick="clearMessage()" style="align-self:flex-start">✕ Wyczyść wszystko</button>
   </div>
 
   <!-- ── TIMER ── -->
@@ -212,6 +248,18 @@ var riderMode     = 1;
 var logoBase64    = '';
 var timerInterval = null;
 
+
+  // Auto-redirect to login if session expired
+  var _origFetch = window.fetch;
+  window.fetch = function() {
+    return _origFetch.apply(this, arguments).then(function(r) {
+      if ((r.status === 401 || r.status === 403) && r.url.indexOf('/api/') !== -1) {
+        window.location.href = '/login';
+      }
+      return r;
+    });
+  };
+
 // ── LOGOUT ────────────────────────────────────────────────────
 function doLogout() {
   fetch('/logout', {method:'POST'}).then(function(){ window.location.href = '/login'; });
@@ -225,8 +273,11 @@ function toggleSystem() {
     headers: {'Content-Type': 'application/json'},
     body:    JSON.stringify({systemActive: next})
   })
-  .then(function(r){ return r.json(); })
-  .then(function(){ applyPower(next); })
+  .then(function(r){
+    if(r.status===401||r.status===403){ window.location.href='/login'; return null; }
+    return r.json();
+  })
+  .then(function(d){ if(d) applyPower(next); })
   .catch(function(){ alert('Błąd połączenia z serwerem!'); });
 }
 
@@ -316,11 +367,15 @@ function saveRunSettings() {
 
 function sendMessage() {
   var msg = document.getElementById('adminMsg').value.trim();
-  fetch('/api/admin', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({adminMessage: msg})}).catch(function(){});
+  fetch('/api/admin', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({adminMessage: msg, msgColor: 'yellow'})}).catch(function(){});
 }
 function clearMessage() {
   document.getElementById('adminMsg').value = '';
-  fetch('/api/admin', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({adminMessage: ''})}).catch(function(){});
+  fetch('/api/admin', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({adminMessage: '', msgColor: ''})}).catch(function(){});
+}
+function fastMsg(text, color) {
+  document.getElementById('adminMsg').value = text;
+  fetch('/api/admin', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({adminMessage: text, msgColor: color})}).catch(function(){});
 }
 function doReset() {
   fetch('/api/reset', {method:'POST'}).catch(function(){});
