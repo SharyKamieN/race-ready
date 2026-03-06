@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>JUDGE — Race Ready</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; background: #0A0C0F; color: #F0F4FF; font-family: "Arial Black", Arial, sans-serif; }
+    body { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+    header { background: #111418; border-bottom: 2px solid #1E2530; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-shrink: 0; }
+    .ev   { font-weight: 900; font-size: clamp(11px,2vw,16px); color: #00C8FF; text-transform: uppercase; letter-spacing: 0.06em; display: flex; align-items: center; gap: 10px; }
+    .ev img { height: 28px; object-fit: contain; display: none; }
+    .role { font-weight: 700; font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: #7A8090; border: 1.5px solid #2A3040; padding: 3px 10px; border-radius: 4px; }
+    .conn { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; }
+    .conn.online  { background: rgba(11,187,68,.18); color: #00EE55; border: 1px solid #00EE55; }
+    .conn.offline { background: rgba(220,30,30,.18); color: #FF4444; border: 1px solid #FF4444; }
+    main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; padding: 20px; overflow: hidden; }
+    .instr { font-size: clamp(13px,3vw,20px); font-weight: 700; letter-spacing: 0.1em; color: #7A8090; text-align: center; text-transform: uppercase; max-width: 500px; }
+    .instr.ok { color: #00EE55; }
+
+    .btn { display: flex; flex-direction: column; align-items: center; justify-content: center; width: min(72vw,340px); height: min(72vw,340px); border-radius: 16px; cursor: pointer; user-select: none; transition: transform .12s; -webkit-tap-highlight-color: transparent; touch-action: manipulation; border-style: solid; }
+    .btn.red   { background: #CC1111; border: 10px solid #FF2222; box-shadow: 0 0 50px rgba(220,30,30,.6), inset 0 0 40px rgba(0,0,0,.25); }
+    .btn.green { background: #0BBB44; border: 10px solid #00EE55; box-shadow: 0 0 80px rgba(11,187,68,.6), 0 0 160px rgba(11,187,68,.4); }
+    .btn:active { transform: scale(0.95); }
+    .bl { font-weight: 900; font-size: clamp(38px,10vw,70px); color: #fff; text-shadow: 0 3px 18px rgba(0,0,0,.7); line-height: 1; }
+    .bs { font-weight: 900; font-size: clamp(16px,4vw,26px); letter-spacing: 0.18em; margin-top: 10px; color: rgba(255,255,255,.92); }
+
+    /* Riders display */
+    .riders-display { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+    .rd-box { background: #181C22; border: 2px solid #252B35; border-radius: 10px; padding: 10px 20px; text-align: center; min-width: 100px; }
+    .rd-label { font-size: 10px; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; color: #00C8FF; margin-bottom: 4px; }
+    .rd-num   { font-weight: 900; font-size: clamp(24px,6vw,40px); color: #FFD200; letter-spacing: 0.05em; }
+
+    /* Timer */
+    .timer-box { background: #181C22; border: 2px solid #252B35; border-radius: 10px; padding: 8px 24px; text-align: center; }
+    .timer-val { font-family: "Courier New",monospace; font-weight: 700; font-size: clamp(24px,5vw,38px); color: #FFD200; letter-spacing: 0.08em; }
+    .timer-lbl { font-size: 10px; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; color: #7A8090; }
+
+    .tvs  { display: flex; align-items: center; gap: 10px; padding: 10px 20px; background: #181C22; border-radius: 10px; border: 2px solid #252B35; font-size: clamp(12px,2.5vw,15px); font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #7A8090; }
+    .dot  { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
+    .dot.red   { background: #FF3333; box-shadow: 0 0 8px rgba(255,50,50,.7); }
+    .dot.green { background: #00EE55; box-shadow: 0 0 8px rgba(0,238,85,.7); }
+
+    .banner { font-weight: 900; font-size: clamp(14px,3.5vw,24px); color: #00EE55; text-align: center; letter-spacing: 0.06em; opacity: 0; transition: opacity .4s; text-shadow: 0 0 30px rgba(0,238,85,.6); min-height: 30px; }
+    .banner.show { opacity: 1; }
+    .cd { font-family: "Courier New",monospace; font-weight: 700; font-size: 15px; color: #FFD200; min-height: 22px; text-align: center; }
+    .msg { width: 100%; max-width: 420px; background: rgba(0,200,255,.1); border: 1.5px solid #00C8FF; border-radius: 8px; padding: 8px 14px; font-size: 13px; font-weight: 700; color: #00C8FF; display: none; text-align: center; }
+    .msg.show { display: block; }
+    .flash { position: fixed; inset: 0; pointer-events: none; z-index: 999; opacity: 0; }
+    .flash.go { animation: fa .5s ease forwards; }
+    @keyframes fa { 0% { opacity: .75; } 100% { opacity: 0; } }
+  </style>
+</head>
+<body>
+<header>
+  <div class="ev"><img id="logoImg"><span id="evName">Garmin Winter Festival</span></div>
+  <span class="role">⚖ JUDGE</span>
+  <span class="conn offline" id="cb">Offline</span>
+</header>
+<main>
+  <div class="instr" id="instr">Naciśnij gdy gotowy do startu zawodnika</div>
+
+  <div class="btn red" id="btn" onclick="tap()">
+    <span class="bl">JUDGE</span>
+    <span class="bs" id="bs">READY</span>
+  </div>
+
+  <!-- Riders display -->
+  <div class="riders-display" id="ridersDisplay" style="display:none">
+    <div class="rd-box">
+      <div class="rd-label">Current Rider</div>
+      <div class="rd-num" id="rdNum1">—</div>
+    </div>
+    <div class="rd-box" id="rdBox2" style="display:none">
+      <div class="rd-label">Current Rider 2</div>
+      <div class="rd-num" id="rdNum2">—</div>
+    </div>
+  </div>
+
+  <!-- Timer -->
+  <div class="timer-box" id="timerBox" style="display:none">
+    <div class="timer-lbl">Timer przejazdu</div>
+    <div class="timer-val" id="timerVal">00:00.0</div>
+  </div>
+
+  <div class="msg" id="msgBox"></div>
+  <div class="banner" id="banner">✓ WSZYSTKIE GOTOWE — CZEKAJ NA STARTER</div>
+  <div class="tvs"><span class="dot red" id="tvDot"></span><span id="tvTxt">TV / REŻYSER: NIE GOTOWY</span></div>
+  <div class="cd" id="cd"></div>
+</main>
+<div class="flash" id="flash" style="background:rgba(11,187,68,.35)"></div>
+<script>
+  let rAt=null, cdi=null, timerInterval=null;
+  function tap(){ fetch('/api/judge',{method:'POST'}).catch(()=>{}); }
+  function formatT(ms){ const s=Math.floor(ms/1000); return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')+'.'+Math.floor((ms%1000)/100); }
+
+  function apply(s){
+    if(s.eventName) document.getElementById('evName').textContent=s.eventName;
+    const logo=document.getElementById('logoImg');
+    if(s.logoBase64){logo.src=s.logoBase64;logo.style.display='block';}else{logo.style.display='none';}
+
+    document.getElementById('btn').className   = s.judgeReady ? 'btn green' : 'btn red';
+    document.getElementById('bs').textContent  = s.judgeReady ? 'READY ✓' : 'READY';
+    document.getElementById('instr').textContent = s.judgeReady ? 'Gotowy — naciśnij ponownie aby anulować' : 'Naciśnij gdy gotowy do startu zawodnika';
+    document.getElementById('instr').className = s.judgeReady ? 'instr ok' : 'instr';
+    document.getElementById('tvDot').className = s.tvReady ? 'dot green' : 'dot red';
+    document.getElementById('tvTxt').textContent = s.tvReady ? 'TV / REŻYSER: GOTOWY ✓' : 'TV / REŻYSER: NIE GOTOWY';
+    document.getElementById('tvTxt').style.color = s.tvReady ? '#00EE55' : '';
+    document.getElementById('banner').className = s.judgeReady&&s.tvReady ? 'banner show' : 'banner';
+
+    // Riders
+    const r1=s.currentRider1, r2=s.currentRider2;
+    const showRiders = r1||r2;
+    document.getElementById('ridersDisplay').style.display = showRiders ? '' : 'none';
+    document.getElementById('rdNum1').textContent = r1||'—';
+    document.getElementById('rdBox2').style.display = (s.riderMode===2) ? '' : 'none';
+    document.getElementById('rdNum2').textContent = r2||'—';
+
+    // Timer
+    const tb=document.getElementById('timerBox'), tv=document.getElementById('timerVal');
+    if(s.timerRunning && s.timerStart){
+      tb.style.display='';
+      clearInterval(timerInterval);
+      timerInterval=setInterval(()=>{ tv.textContent=formatT(Date.now()-s.timerStart+(s.timerElapsed||0)); },100);
+    } else if(s.timerElapsed>0){
+      tb.style.display=''; clearInterval(timerInterval); tv.textContent=formatT(s.timerElapsed);
+    } else { tb.style.display='none'; clearInterval(timerInterval); }
+
+    // Message
+    const mb=document.getElementById('msgBox');
+    if(s.adminMessage){mb.textContent=s.adminMessage;mb.className='msg show';}else{mb.className='msg';}
+
+    if(s.goSignalGiven){const f=document.getElementById('flash');f.classList.remove('go');void f.offsetWidth;f.classList.add('go');}
+    const cd=document.getElementById('cd');
+    if(s.judgeReady&&s.tvReady&&!s.goSignalGiven){if(!rAt){rAt=Date.now();startCD();}}
+    else{rAt=null;clearInterval(cdi);cdi=null;cd.textContent='';}
+  }
+  function startCD(){clearInterval(cdi);cdi=setInterval(()=>{const r=20-Math.floor((Date.now()-rAt)/1000);document.getElementById('cd').textContent=r>0?'⚠ Auto-reset za: '+r+'s':'';if(r<=0){clearInterval(cdi);rAt=null;}},500);}
+  function connect(){const cb=document.getElementById('cb');const es=new EventSource('/events');es.onopen=()=>{cb.textContent='Online';cb.className='conn online';};es.onmessage=e=>apply(JSON.parse(e.data));es.onerror=()=>{cb.textContent='Offline';cb.className='conn offline';es.close();setTimeout(connect,3000);};}
+  connect();
+</script>
+</body>
+</html>
