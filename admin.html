@@ -168,6 +168,10 @@
       <label>Łącznie rund<input type="number"   id="runTotal"   placeholder="0" min="0" value=""></label>
     </div>
     <div class="slider-row">
+      <span class="slider-label">🔢 Pokazuj licznik rund</span>
+      <div class="slider on" id="runSlider" onclick="toggleShowRun()"><div class="slider-knob on" id="runKnob"></div></div>
+    </div>
+    <div class="slider-row">
       <span class="slider-label">⏱ Timer przejazdu</span>
       <div class="slider" id="timerSlider" onclick="toggleTimer()"><div class="slider-knob off" id="timerKnob"></div></div>
     </div>
@@ -307,6 +311,17 @@ function applyPower(val) {
   }
 }
 
+// ── SHOW RUN TOGGLE ───────────────────────────────────────────
+function toggleShowRun() {
+  var sl = document.getElementById('runSlider');
+  var kn = document.getElementById('runKnob');
+  var isOn = sl.classList.contains('on');
+  var next = !isOn;
+  sl.className = next ? 'slider on' : 'slider';
+  kn.className = next ? 'slider-knob on' : 'slider-knob off';
+  fetch('/api/admin', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({showRun: next})}).catch(function(){});
+}
+
 // ── TIMER TOGGLE ───────────────────────────────────────────────
 function toggleTimer() {
   timerEnabled = !timerEnabled;
@@ -420,6 +435,10 @@ function applyState(s) {
   if (s.systemActive !== undefined && s.systemActive !== systemActive) applyPower(s.systemActive);
 
   // Timer
+  if (s.showRun !== undefined) {
+    document.getElementById('runSlider').className = s.showRun ? 'slider on' : 'slider';
+    document.getElementById('runKnob').className   = s.showRun ? 'slider-knob on' : 'slider-knob off';
+  }
   if (s.timerEnabled !== undefined && s.timerEnabled !== timerEnabled) { timerEnabled = s.timerEnabled; applyTimerUI(timerEnabled); }
   updateTimer(s);
 
