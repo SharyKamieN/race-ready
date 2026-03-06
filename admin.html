@@ -1,4 +1,4 @@
-<!DOCTYPE html>  
+<!DOCTYPE html>
 <html lang="pl">
 <head>
   <meta charset="UTF-8">
@@ -145,6 +145,13 @@
       <span class="slider-label">⏱ Timer przejazdu</span>
       <div class="slider" id="timerSlider" onclick="toggleTimer()"><div class="slider-knob off" id="timerKnob"></div></div>
     </div>
+    <div style="margin-top:4px;">
+      <div style="font-size:12px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;color:#7A8090;margin-bottom:8px;">Język paneli</div>
+      <div class="toggle-row">
+        <button class="toggle-btn active" id="langPL" onclick="setLanguage('pl')">🇵🇱 Polski</button>
+        <button class="toggle-btn"        id="langEN" onclick="setLanguage('en')">🇬🇧 English</button>
+      </div>
+    </div>
     <button class="save-btn" onclick="saveRunSettings()">Zapisz rundy</button>
   </div>
 
@@ -280,7 +287,7 @@ function removeLogo() {
 
 function saveEventInfo() {
   var name = document.getElementById('eventName').value.trim();
-  fetch('/api/admin', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({eventName: name || 'Race Ready', logoBase64: logoBase64})}).catch(function(){});
+  fetch('/api/admin', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({eventName: name, logoBase64: logoBase64})}).catch(function(){});
 }
 
 function saveRunSettings() {
@@ -328,10 +335,14 @@ function applyState(s) {
 
   // Rider mode
   if (s.riderMode !== undefined) { riderMode = s.riderMode; setRiderMode(riderMode); }
+  if (s.language !== undefined) {
+    document.getElementById('langPL').className = s.language==='pl' ? 'toggle-btn active' : 'toggle-btn';
+    document.getElementById('langEN').className = s.language==='en' ? 'toggle-btn active' : 'toggle-btn';
+  }
 
   // Inputs (only if not focused)
   var en = document.getElementById('eventName');
-  if (document.activeElement !== en) en.value = s.eventName || '';
+  if (document.activeElement !== en && en.value === '') en.value = s.eventName || '';
   var rc = document.getElementById('runCurrent');
   if (document.activeElement !== rc) rc.value = s.runCurrent || 0;
   var rt = document.getElementById('runTotal');
@@ -366,6 +377,14 @@ function applyState(s) {
   } else {
     hl.innerHTML = '<div class="hist-empty">Brak startów w tej sesji</div>';
   }
+}
+
+
+// ── LANGUAGE ───────────────────────────────────────────────────
+function setLanguage(lang) {
+  document.getElementById('langPL').className = lang==='pl' ? 'toggle-btn active' : 'toggle-btn';
+  document.getElementById('langEN').className = lang==='en' ? 'toggle-btn active' : 'toggle-btn';
+  fetch('/api/admin', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({language: lang})}).catch(function(){});
 }
 
 // ── SSE ────────────────────────────────────────────────────────
