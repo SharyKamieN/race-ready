@@ -169,7 +169,11 @@
   <div class="card" id="timerCard" style="display:none">
     <div class="card-title">⏱ Timer przejazdu</div>
     <div class="timer-big" id="timerDisplay">00:00.0</div>
-    <div style="color:#7A8090;font-size:12px;text-align:center;letter-spacing:0.1em">Startuje automatycznie po GO</div>
+    <div id="timerStatusLbl" style="color:#7A8090;font-size:12px;text-align:center;letter-spacing:0.1em;margin-bottom:4px;">Startuje automatycznie po GO</div>
+    <div class="row" style="justify-content:center;gap:12px;">
+      <button class="save-btn" id="timerStopBtn" onclick="timerStop()" style="background:#FF8800;min-width:120px;">⏹ STOP</button>
+      <button class="reset-btn" id="timerResetBtn" onclick="timerReset()">⟳ Reset</button>
+    </div>
   </div>
 
   <!-- ── LIVE STATUS ── -->
@@ -188,7 +192,10 @@
 
   <!-- ── HISTORY ── -->
   <div class="card full">
-    <div class="card-title">📋 Historia startów</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #1E2530;padding-bottom:12px;margin-bottom:4px;">
+      <div class="card-title" style="border:none;padding:0;margin:0;">📋 Historia startów</div>
+      <button class="reset-btn" id="clearHistBtn" onclick="clearHistory()" style="font-size:11px;padding:7px 14px;display:none;">🗑 Wyczyść historię</button>
+    </div>
     <div class="history-list" id="historyList"><div class="hist-empty">Brak startów w tej sesji</div></div>
   </div>
 
@@ -317,13 +324,28 @@ function formatTimer(ms) {
   return String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0') + '.' + Math.floor((ms%1000)/100);
 }
 function updateTimer(s) {
-  var el = document.getElementById('timerDisplay');
+  var el  = document.getElementById('timerDisplay');
+  var lbl = document.getElementById('timerStatusLbl');
+  var btn = document.getElementById('timerStopBtn');
   clearInterval(timerInterval);
   if (!s.timerEnabled) { el.textContent = '00:00.0'; return; }
   if (s.timerRunning && s.timerStart) {
-    timerInterval = setInterval(function(){ el.textContent = formatTimer(Date.now() - s.timerStart + (s.timerElapsed||0)); }, 100);
+    var base = s.timerElapsed || 0;
+    var t0   = s.timerStart;
+    timerInterval = setInterval(function(){ el.textContent = formatTimer(Date.now() - t0 + base); }, 100);
+    if (lbl) lbl.textContent = '▶ Timer w trakcie...';
+    if (lbl) lbl.style.color = '#00EE55';
+    if (btn) { btn.textContent = '⏹ STOP'; btn.style.background = '#FF8800'; btn.disabled = false; }
+  } else if (s.timerElapsed > 0) {
+    el.textContent = formatTimer(s.timerElapsed);
+    if (lbl) lbl.textContent = '⏹ Zatrzymany — wynik: ' + formatTimer(s.timerElapsed);
+    if (lbl) lbl.style.color = '#FFD200';
+    if (btn) { btn.textContent = '✓ Zatrzymany'; btn.style.background = '#2A3040'; btn.disabled = true; }
   } else {
-    el.textContent = formatTimer(s.timerElapsed || 0);
+    el.textContent = '00:00.0';
+    if (lbl) lbl.textContent = 'Startuje automatycznie po GO';
+    if (lbl) lbl.style.color = '#7A8090';
+    if (btn) { btn.textContent = '⏹ STOP'; btn.style.background = '#FF8800'; btn.disabled = false; }
   }
 }
 
@@ -382,6 +404,8 @@ function applyState(s) {
   } else {
     hl.innerHTML = '<div class="hist-empty">Brak startów w tej sesji</div>';
   }
+  var chb = document.getElementById('clearHistBtn');
+  if (chb) chb.style.display = (s.history && s.history.length > 0) ? '' : 'none';
 }
 
 
@@ -390,6 +414,21 @@ function setLanguage(lang) {
   document.getElementById('langPL').className = lang==='pl' ? 'toggle-btn active' : 'toggle-btn';
   document.getElementById('langEN').className = lang==='en' ? 'toggle-btn active' : 'toggle-btn';
   fetch('/api/admin', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({language: lang})}).catch(function(){});
+}
+
+
+// ── HISTORY ───────────────────────────────────────────────────
+function clearHistory() {
+  if (!confirm('Wyczyścić całą historię startów?')) return;
+  fetch('/api/history/clear', {method:'POST'}).catch(function(){});
+}
+
+// ── TIMER CONTROLS (admin) ─────────────────────────────────────
+function timerStop() {
+  fetch('/api/timer/stop', {method:'POST'}).catch(function(){});
+}
+function timerReset() {
+  fetch('/api/timer/reset', {method:'POST'}).catch(function(){});
 }
 
 // ── SSE ────────────────────────────────────────────────────────
