@@ -235,7 +235,7 @@ const server = http.createServer(async (req, res) => {
   if (pathname === '/operator') filePath = '/operator.html';
   if (pathname === '/admin')    filePath = '/admin.html';
 
-  const fullPath = path.join(__dirname, 'public', filePath);
+  const fullPath = path.join(__dirname, filePath);
   fs.readFile(fullPath, (err, data) => {
     if (err) { res.writeHead(404); res.end('Not found: ' + filePath); return; }
     res.writeHead(200, {'Content-Type': MIME[path.extname(filePath)] || 'text/plain'});
