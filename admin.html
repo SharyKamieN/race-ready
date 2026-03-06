@@ -148,6 +148,30 @@
     </div>
   </div>
 
+
+  <!-- ── PANEL LINKS ── -->
+  <div class="card full" style="padding: 18px 24px;">
+    <div class="card-title">🔗 Otwórz panele</div>
+    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:4px;">
+      <button class="save-btn" onclick="window.open('/judge','_blank')"
+        style="flex:1; min-width:120px; background:#1E2530; color:#00C8FF; border:1.5px solid #00C8FF;">
+        ⚖ Judge
+      </button>
+      <button class="save-btn" onclick="window.open('/tv','_blank')"
+        style="flex:1; min-width:120px; background:#1E2530; color:#00C8FF; border:1.5px solid #00C8FF;">
+        📺 TV / Reżyser
+      </button>
+      <button class="save-btn" onclick="window.open('/operator','_blank')"
+        style="flex:1; min-width:120px; background:#1E2530; color:#00C8FF; border:1.5px solid #00C8FF;">
+        🚩 Operator
+      </button>
+      <button class="save-btn" onclick="openAll()"
+        style="flex:1; min-width:120px; background:#00C8FF; color:#000;">
+        ⚡ Otwórz wszystkie
+      </button>
+    </div>
+  </div>
+
   <!-- ── EVENT INFO ── -->
   <div class="card">
     <div class="card-title">⚙ Ustawienia eventu</div>
@@ -273,6 +297,13 @@ var timerInterval = null;
       return r;
     });
   };
+
+// ── PANEL LINKS ───────────────────────────────────────────────
+function openAll() {
+  window.open('/judge',    '_blank');
+  window.open('/tv',       '_blank');
+  window.open('/operator', '_blank');
+}
 
 // ── LOGOUT ────────────────────────────────────────────────────
 function doLogout() {
