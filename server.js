@@ -11,7 +11,7 @@ let state = {
   logoBase64:   '',
   riderMode:    1,
   timerEnabled: false,
-  showRun:      true,
+  showRun:      false,
   systemActive: false,
   judgeReady:   false,
   tvReady:      false,
