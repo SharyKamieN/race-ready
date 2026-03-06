@@ -45,12 +45,29 @@
     .banner { font-weight: 900; font-size: clamp(14px,3.5vw,24px); color: #00EE55; text-align: center; letter-spacing: 0.06em; opacity: 0; transition: opacity .4s; text-shadow: 0 0 30px rgba(0,238,85,.6); min-height: 30px; }
     .banner.show { opacity: 1; }
     .cd { font-family: "Courier New",monospace; font-weight: 700; font-size: 15px; color: #FFD200; min-height: 22px; text-align: center; }
-    .msg { width: 100%; max-width: 420px; background: rgba(0,200,255,.1); border: 1.5px solid #00C8FF; border-radius: 8px; padding: 8px 14px; font-size: 13px; font-weight: 700; color: #00C8FF; display: none; text-align: center; }
+    .msg.yellow    { background: rgba(255,210,0,0.15);  color: #FFD200; border: 2px solid #FFD200; }
+  .msg.orange    { background: rgba(255,102,0,0.15);  color: #FF6600; border: 2px solid #FF6600; }
+  .msg.red       { background: rgba(204,17,17,0.15);  color: #FF2222; border: 2px solid #CC1111; }
+  .msg.red-blink { background: rgba(204,17,17,0.15);  color: #FF2222; border: 2px solid #CC1111; animation: msgblink 1.2s ease-in-out infinite; }
+  @keyframes msgblink {
+    0%, 100% { border-color: #CC1111; box-shadow: 0 0 0px rgba(220,30,30,0); }
+    50%       { border-color: #FF4444; box-shadow: 0 0 20px rgba(255,40,40,0.5); }
+  }
+  .msg { width: 100%; max-width: 420px; background: rgba(0,200,255,.1); border: 1.5px solid #00C8FF; border-radius: 8px; padding: 8px 14px; font-size: 13px; font-weight: 700; color: #00C8FF; display: none; text-align: center; }
     .msg.show { display: block; }
     .flash { position: fixed; inset: 0; pointer-events: none; z-index: 999; opacity: 0; }
     .flash.go { animation: fa .5s ease forwards; }
     @keyframes fa { 0% { opacity: .75; } 100% { opacity: 0; } }
-  </style>
+  
+  .fs-btn {
+    position: fixed; bottom: 20px; right: 20px; z-index: 200;
+    background: rgba(30,37,48,0.85); border: 1.5px solid #2A3040;
+    border-radius: 10px; padding: 10px 14px; cursor: pointer;
+    font-size: 18px; color: #7A8090; transition: all 0.2s;
+    backdrop-filter: blur(4px);
+  }
+  .fs-btn:hover { border-color: #00C8FF; color: #00C8FF; }
+</style>
 </head>
 <body>
 <header>
@@ -61,7 +78,7 @@
 <main>
   <div class="instr" id="instr">Naciśnij gdy gotowy do startu zawodnika</div>
 
-  <div class="btn red" id="btn" onclick="tap()">
+  <div class="btn red" id="btn" onclick="tap()" ontouchstart="event.preventDefault();tap()">
     <span class="bl">JUDGE</span>
     <span class="bs" id="bs">READY</span>
   </div>
@@ -149,7 +166,11 @@ var lang = 'pl';
 function t(key) { return (LANG[lang] || LANG.pl)[key] || key; }
 
   let rAt=null, cdi=null, timerInterval=null;
-  function tap(){ fetch('/api/judge',{method:'POST'}).catch(()=>{}); }
+  function tap(){
+    if(tap.busy) return; tap.busy=true; setTimeout(()=>tap.busy=false, 600);
+    fetch('/api/judge',{method:'POST'}).catch(()=>{});
+  }
+  tap.busy=false;
   function formatT(ms){ const s=Math.floor(ms/1000); return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')+'.'+Math.floor((ms%1000)/100); }
 
   var lastState = {};
@@ -202,6 +223,24 @@ function t(key) { return (LANG[lang] || LANG.pl)[key] || key; }
   function startCD(){clearInterval(cdi);cdi=setInterval(()=>{const r=20-Math.floor((Date.now()-rAt)/1000);document.getElementById('cd').textContent=r>0?t('auto_reset')+r+t('seconds'):'';if(r<=0){clearInterval(cdi);rAt=null;}},500);}
   function connect(){const cb=document.getElementById('cb');const es=new EventSource('/events');es.onopen=()=>{cb.textContent='Online';cb.className='conn online';};es.onmessage=e=>apply(JSON.parse(e.data));es.onerror=()=>{cb.textContent='Offline';cb.className='conn offline';es.close();setTimeout(connect,3000);};}
   connect();
+
+  function toggleFS() {
+    const btn = document.getElementById('fsBtn');
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(()=>{});
+      btn.textContent = '✕';
+      btn.title = 'Wyjdź z pełnego ekranu';
+    } else {
+      document.exitFullscreen();
+      btn.textContent = '⛶';
+      btn.title = 'Pełny ekran';
+    }
+  }
+  document.addEventListener('fullscreenchange', () => {
+    const btn = document.getElementById('fsBtn');
+    if (btn) btn.textContent = document.fullscreenElement ? '✕' : '⛶';
+  });
+
 </script>
 
   <!-- SYSTEM OFFLINE OVERLAY -->
@@ -210,5 +249,6 @@ function t(key) { return (LANG[lang] || LANG.pl)[key] || key; }
     <div style="font-family:'Arial Black',Arial,sans-serif;font-weight:900;font-size:clamp(20px,5vw,32px);color:#FF4444;letter-spacing:0.1em;text-transform:uppercase;">System offline</div>
     <div style="font-size:14px;color:#7A8090;text-align:center;font-family:Arial,sans-serif;max-width:280px;">Administrator musi włączyć system w panelu Admin</div>
   </div>
+  <button class="fs-btn" id="fsBtn" onclick="toggleFS()" title="Pełny ekran">⛶</button>
 </body>
 </html>
