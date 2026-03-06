@@ -100,10 +100,12 @@ http.createServer(async (req, res) => {
   if (req.method==='OPTIONS') { res.writeHead(204); res.end(); return; }
 
   if (p==='/events') {
-    res.writeHead(200,{'Content-Type':'text/event-stream','Cache-Control':'no-cache','Connection':'keep-alive'});
+    res.writeHead(200,{'Content-Type':'text/event-stream','Cache-Control':'no-cache','Connection':'keep-alive','X-Accel-Buffering':'no'});
     res.write('data: '+JSON.stringify(pub())+'\n\n');
     clients.push(res);
-    req.on('close',()=>{ clients=clients.filter(c=>c!==res); });
+    // Heartbeat every 25s to keep Railway connection alive
+    const hb = setInterval(() => { try { res.write(':ping\n\n'); } catch(e){} }, 25000);
+    req.on('close',()=>{ clearInterval(hb); clients=clients.filter(c=>c!==res); });
     return;
   }
 
