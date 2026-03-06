@@ -167,6 +167,13 @@
   }
 
   function apply(s){
+    // System ON/OFF
+    const ov = document.getElementById('sysOverlay');
+    if(s.systemActive === false){
+      ov.style.display = 'flex';
+    } else {
+      ov.style.display = 'none';
+    }
     if(s.eventName) document.getElementById('evName').textContent = s.eventName;
     const logo = document.getElementById('logoImg');
     if(s.logoBase64){ logo.src=s.logoBase64; logo.style.display='block'; } else { logo.style.display='none'; }
@@ -233,5 +240,12 @@
   }
   connect();
 </script>
+
+  <!-- SYSTEM OFFLINE OVERLAY -->
+  <div id="sysOverlay" style="display:none;position:fixed;inset:0;background:rgba(10,12,15,0.92);z-index:9999;flex-direction:column;align-items:center;justify-content:center;gap:20px;">
+    <div style="width:80px;height:80px;border-radius:50%;background:rgba(220,30,30,0.15);border:3px solid #FF2222;display:flex;align-items:center;justify-content:center;font-size:36px;">⚡</div>
+    <div style="font-family:'Arial Black',Arial,sans-serif;font-weight:900;font-size:clamp(20px,5vw,32px);color:#FF4444;letter-spacing:0.1em;text-transform:uppercase;">System offline</div>
+    <div style="font-size:14px;color:#7A8090;text-align:center;font-family:Arial,sans-serif;max-width:280px;">Administrator musi włączyć system w panelu Admin</div>
+  </div>
 </body>
 </html>
