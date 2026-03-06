@@ -134,6 +134,13 @@
     </div>
   </div>
 
+
+  <!-- TIMER -->
+  <div id="opTimerBox" style="display:none;text-align:center;padding:10px 20px 0;">
+    <div style="font-size:11px;font-weight:800;letter-spacing:0.2em;text-transform:uppercase;color:#7A8090;margin-bottom:4px;" id="opTimerLbl">Timer przejazdu</div>
+    <div style="font-family:'Courier New',monospace;font-weight:700;font-size:48px;letter-spacing:0.06em;color:#FFD200;" id="opTimerVal">00:00.0</div>
+  </div>
+
   <!-- GO -->
   <div class="go-wrap">
     <div class="go-hint" id="goHint">Oczekiwanie na gotowość...</div>
@@ -205,7 +212,8 @@ var LANG = {
 var lang = 'pl';
 function t(key) { return (LANG[lang] || LANG.pl)[key] || key; }
 
-  let rAt=null, cdi=null, canGo=false, riderMode=1;
+  let rAt=null, cdi=null, canGo=false, riderMode=1, timerInterval=null;
+  function formatT(ms){ const s=Math.floor(ms/1000); return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')+'.'+Math.floor((ms%1000)/100); }
   let saveCooldown = null;
 
   function sendGo(){ if(!canGo) return; fetch('/api/go',{method:'POST'}).catch(()=>{}); }
@@ -255,6 +263,30 @@ function t(key) { return (LANG[lang] || LANG.pl)[key] || key; }
       rb.style.display='';
       document.getElementById('runTxt').textContent = s.runTotal > 0 ? s.runCurrent+' / '+s.runTotal : s.runCurrent;
     } else { rb.style.display='none'; }
+
+
+    // Timer
+    const otb = document.getElementById('opTimerBox');
+    const otv = document.getElementById('opTimerVal');
+    const otl = document.getElementById('opTimerLbl');
+    clearInterval(timerInterval);
+    if(s.timerEnabled){
+      if(s.timerRunning && s.timerStart){
+        otb.style.display='';
+        const base=s.timerElapsed||0, t0=s.timerStart;
+        timerInterval=setInterval(()=>{ otv.textContent=formatT(Date.now()-t0+base); },100);
+        if(otl) otl.style.color='#00EE55';
+      } else if(s.timerElapsed>0){
+        otb.style.display='';
+        otv.textContent=formatT(s.timerElapsed);
+        if(otl){ otl.textContent='⏹ Wynik: '+formatT(s.timerElapsed); otl.style.color='#FFD200'; }
+      } else {
+        otb.style.display='none';
+        if(otl){ otl.textContent='Timer przejazdu'; otl.style.color='#7A8090'; }
+      }
+    } else {
+      otb.style.display='none';
+    }
 
     // Admin message
     const mb = document.getElementById('msgBanner');
