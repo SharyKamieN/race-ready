@@ -141,11 +141,12 @@ function t(key) { return (LANG[lang] || LANG.pl)[key] || key; }
   let rAt=null, cdi=null, timerInterval=null;
   function tap(){ fetch('/api/tv',{method:'POST'}).catch(()=>{}); }
   function formatT(ms){ const s=Math.floor(ms/1000); return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')+'.'+Math.floor((ms%1000)/100); }
-  function apply(s){
+  var lastState = {};
+  function apply(s){ lastState = s;
     // System ON/OFF
     const ov = document.getElementById('sysOverlay');
     ov.style.display = s.systemActive ? 'none' : 'flex';
-    if(s.language) lang=s.language;
+    if(s.language !== undefined && s.language !== lang){ lang=s.language; }
     if(s.eventName) document.getElementById('evName').textContent=s.eventName;
     const logo=document.getElementById('logoImg');
     if(s.logoBase64){logo.src=s.logoBase64;logo.style.display='block';}else{logo.style.display='none';}
