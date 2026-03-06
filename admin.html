@@ -93,7 +93,10 @@
 <body>
 <header>
   <div><div class="hlogo">RACE READY</div><div class="hsub">Panel Administratora</div></div>
-  <span class="conn offline" id="cb">Offline</span>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <span class="conn offline" id="cb">Offline</span>
+    <button onclick="doLogout()" style="background:transparent;border:1px solid #2A3040;border-radius:6px;color:#7A8090;font-size:11px;font-weight:700;letter-spacing:0.1em;padding:4px 10px;cursor:pointer;text-transform:uppercase;" onmouseover="this.style.borderColor='#FF4444';this.style.color='#FF4444'" onmouseout="this.style.borderColor='#2A3040';this.style.color='#7A8090'">Wyloguj</button>
+  </div>
 </header>
 
 <div class="page">
@@ -208,6 +211,11 @@ var timerEnabled  = false;
 var riderMode     = 1;
 var logoBase64    = '';
 var timerInterval = null;
+
+// ── LOGOUT ────────────────────────────────────────────────────
+function doLogout() {
+  fetch('/logout', {method:'POST'}).then(function(){ window.location.href = '/login'; });
+}
 
 // ── POWER ──────────────────────────────────────────────────────
 function toggleSystem() {
