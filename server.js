@@ -10,6 +10,7 @@ let state = {
   logoBase64:   '',
   riderMode:    1,
   timerEnabled: false,
+  systemActive: false,
   judgeReady:   false,
   tvReady:      false,
   goSignalGiven:false,
@@ -35,6 +36,7 @@ function pub() {
     logoBase64:   state.logoBase64,
     riderMode:    state.riderMode,
     timerEnabled: state.timerEnabled,
+    systemActive: state.systemActive,
     judgeReady:   state.judgeReady,
     tvReady:      state.tvReady,
     goSignalGiven:state.goSignalGiven,
@@ -109,6 +111,10 @@ http.createServer(async (req, res) => {
     return;
   }
 
+  if (!state.systemActive && ['/api/judge','/api/tv','/api/go','/api/riders'].includes(p)) {
+    res.writeHead(403,{'Content-Type':'application/json'}); res.end('{"ok":false,"reason":"System offline"}'); return;
+  }
+
   if (p==='/api/state') { res.writeHead(200,{'Content-Type':'application/json'}); res.end(JSON.stringify(pub())); return; }
 
   if (p==='/api/judge' && req.method==='POST') {
@@ -152,7 +158,8 @@ http.createServer(async (req, res) => {
     if(b.runTotal!==undefined)     state.runTotal=parseInt(b.runTotal)||0;
     if(b.runCurrent!==undefined)   state.runCurrent=parseInt(b.runCurrent)||0;
     if(b.adminMessage!==undefined) state.adminMessage=b.adminMessage;
-    if(b.timerEnabled!==undefined) state.timerEnabled=!!b.timerEnabled;
+    if(b.timerEnabled!==undefined)  state.timerEnabled=!!b.timerEnabled;
+    if(b.systemActive!==undefined)  { state.systemActive=!!b.systemActive; if(!state.systemActive){ state.judgeReady=false; state.tvReady=false; state.goSignalGiven=false; } }
     broadcast();
     res.writeHead(200,{'Content-Type':'application/json'}); res.end('{"ok":true}'); return;
   }
