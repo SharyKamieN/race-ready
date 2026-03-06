@@ -19,12 +19,13 @@ let state = {
   currentRider2:'',
   nextRider1:   '',
   nextRider2:   '',
-  runCurrent:   0,
+  runCurrent:   1,
   runTotal:     0,
   timerRunning: false,
   timerStart:   null,
   timerElapsed: 0,
   adminMessage: '',
+  msgColor:     '',
   history:      [],
   _autoReset:   null,
 };
@@ -34,11 +35,20 @@ let clients = [];
 // ── AUTH ───────────────────────────────────────────────────────
 const ADMIN_LOGIN    = 'admin';
 const ADMIN_PASSWORD = 'ledcity1063';
-const sessions = new Set(); // active session tokens
+const sessions = new Map(); // token -> lastActivity timestamp
+const SESSION_TTL = 8 * 60 * 60 * 1000; // 8 hours
 
 function genToken() {
   return Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2) + Date.now().toString(36);
 }
+
+// Clean expired sessions every 30 minutes
+setInterval(() => {
+  const now = Date.now();
+  for (const [token, ts] of sessions) {
+    if (now - ts > SESSION_TTL) sessions.delete(token);
+  }
+}, 30 * 60 * 1000);
 function getCookie(req, name) {
   const h = req.headers.cookie || '';
   const m = h.split(';').map(c=>c.trim()).find(c=>c.startsWith(name+'='));
@@ -46,7 +56,11 @@ function getCookie(req, name) {
 }
 function isAuthed(req) {
   const token = getCookie(req, 'rr_session');
-  return token && sessions.has(token);
+  if (!token || !sessions.has(token)) return false;
+  const ts = sessions.get(token);
+  if (Date.now() - ts > SESSION_TTL) { sessions.delete(token); return false; }
+  sessions.set(token, Date.now()); // refresh activity
+  return true;
 }
 
 
@@ -152,10 +166,10 @@ http.createServer(async (req, res) => {
   }
 
   if (p==='/api/go' && req.method==='POST') {
-    if (state.judgeReady && state.tvReady) {
+    if (state.judgeReady && state.tvReady && !state.goSignalGiven) {
       state.goSignalGiven=true;
       if(state._autoReset) clearTimeout(state._autoReset);
-      if(state.runCurrent>0) state.runCurrent++;
+      state.runCurrent++;
       if(state.timerEnabled){ state.timerRunning=true; state.timerStart=Date.now(); state.timerElapsed=0; }
       state.history.unshift({time:new Date().toLocaleTimeString('pl-PL',{hour:'2-digit',minute:'2-digit',second:'2-digit'}),rider1:state.currentRider1,rider2:state.currentRider2,run:state.runCurrent});
       if(state.history.length>20) state.history.pop();
@@ -205,6 +219,7 @@ http.createServer(async (req, res) => {
     if(b.runTotal!==undefined)     state.runTotal=parseInt(b.runTotal)||0;
     if(b.runCurrent!==undefined)   state.runCurrent=parseInt(b.runCurrent)||0;
     if(b.adminMessage!==undefined) state.adminMessage=b.adminMessage;
+    if(b.msgColor!==undefined)    state.msgColor=b.msgColor;
     if(b.language!==undefined)     state.language=b.language;
     if(b.timerEnabled!==undefined)  state.timerEnabled=!!b.timerEnabled;
     if(b.systemActive!==undefined)  { state.systemActive=!!b.systemActive; if(!state.systemActive){ state.judgeReady=false; state.tvReady=false; state.goSignalGiven=false; } }
@@ -235,7 +250,7 @@ http.createServer(async (req, res) => {
     body(req).then(b => {
       if (b.login === ADMIN_LOGIN && b.password === ADMIN_PASSWORD) {
         const token = genToken();
-        sessions.add(token);
+        sessions.set(token, Date.now());
         res.writeHead(200, {
           'Set-Cookie': 'rr_session=' + token + '; Path=/; HttpOnly; SameSite=Strict',
           'Content-Type': 'application/json'
