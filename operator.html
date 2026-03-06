@@ -75,7 +75,16 @@
     .flash { position: fixed; inset: 0; pointer-events: none; z-index: 999; opacity: 0; }
     .flash.go { animation: fa .6s ease forwards; }
     @keyframes fa { 0% { opacity: .75; } 100% { opacity: 0; } }
-  </style>
+  
+  .msg-banner.yellow    { background: rgba(255,210,0,0.12);  color: #FFD200; border-color: #FFD200; }
+  .msg-banner.orange    { background: rgba(255,102,0,0.12);  color: #FF6600; border-color: #FF6600; }
+  .msg-banner.red       { background: rgba(204,17,17,0.12);  color: #FF2222; border-color: #CC1111; }
+  .msg-banner.red-blink { background: rgba(204,17,17,0.12);  color: #FF2222; border-color: #CC1111; animation: opblink 1.2s ease-in-out infinite; }
+  @keyframes opblink {
+    0%, 100% { border-color: #CC1111; box-shadow: 0 0 0px rgba(220,30,30,0); }
+    50%       { border-color: #FF4444; box-shadow: 0 0 16px rgba(255,40,40,0.4); }
+  }
+</style>
 </head>
 <body>
 <header>
