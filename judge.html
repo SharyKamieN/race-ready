@@ -78,8 +78,9 @@
   .fs-btn:hover { color: #7A8090; border-color: #3A4050; }
 
   .powered {
+    position: fixed; bottom: 8px; left: 0; right: 0;
     display: flex; align-items: center; justify-content: center;
-    gap: 6px; padding: 12px 0 8px;
+    gap: 6px; pointer-events: none;
     opacity: 0.22; transition: opacity 0.3s;
   }
   .powered:hover { opacity: 0.5; }
