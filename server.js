@@ -33,7 +33,7 @@ let clients = [];
 
 // ── AUTH ───────────────────────────────────────────────────────
 const ADMIN_LOGIN    = 'admin';
-const ADMIN_PASSWORD = 'ledciy1063';
+const ADMIN_PASSWORD = 'ledcity1063';
 const sessions = new Set(); // active session tokens
 
 function genToken() {
@@ -232,8 +232,7 @@ http.createServer(async (req, res) => {
   }
 
   if (p === '/login' && req.method === 'POST') {
-    body(req).then(raw => {
-      let b = {}; try { b = JSON.parse(raw); } catch(e) {}
+    body(req).then(b => {
       if (b.login === ADMIN_LOGIN && b.password === ADMIN_PASSWORD) {
         const token = genToken();
         sessions.add(token);
