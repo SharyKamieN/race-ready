@@ -95,6 +95,23 @@
 
 <div class="page">
 
+  <!-- ── SYSTEM ON/OFF ── -->
+  <div class="card full" id="powerCard" style="border-color:#FF2222;box-shadow:0 0 24px rgba(220,30,30,0.3);">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;">
+      <div>
+        <div class="card-title" style="border:none;padding:0;margin-bottom:6px;">⚡ SYSTEM ON / OFF</div>
+        <div style="font-size:13px;color:#7A8090;font-family:Arial,sans-serif;font-weight:400;">Włącz system aby odblokować panele sędziego, TV i operatora</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:16px;">
+        <span id="powerLabel" style="font-family:'Arial Black',Arial,sans-serif;font-weight:900;font-size:18px;letter-spacing:0.15em;color:#FF4444;">OFFLINE</span>
+        <div id="powerToggle" onclick="toggleSystem()" style="width:80px;height:42px;border-radius:21px;background:#2A3040;cursor:pointer;position:relative;transition:background 0.3s;border:2px solid #3A4050;">
+          <div id="powerThumb" style="position:absolute;top:5px;left:5px;width:28px;height:28px;border-radius:50%;background:#FF4444;transition:all 0.3s;box-shadow:0 0 10px rgba(255,68,68,0.5);"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
   <!-- ── EVENT INFO ── -->
   <div class="card">
     <div class="card-title">⚙ Ustawienia eventu</div>
@@ -320,7 +337,8 @@
 
     // Rider mode buttons
     riderMode = s.riderMode || 1;
-    if(s.timerEnabled !== undefined){ timerEnabled = s.timerEnabled; applyTimerToggleUI(timerEnabled); }
+    if(s.timerEnabled  !== undefined){ timerEnabled  = s.timerEnabled;  applyTimerToggleUI(timerEnabled); }
+    if(s.systemActive !== undefined){ applyPowerUI(s.systemActive); }
     document.getElementById('btn1').className = riderMode===1 ? 'toggle-btn active' : 'toggle-btn';
     document.getElementById('btn2').className = riderMode===2 ? 'toggle-btn active' : 'toggle-btn';
 
@@ -362,6 +380,46 @@
   }
 
   // ── SSE ──────────────────────────────────────────────────────
+  let systemActive = false;
+
+  function toggleSystem(){
+    systemActive = !systemActive;
+    applyPowerUI(systemActive);
+    fetch('/api/admin',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({systemActive})
+    }).catch(()=>{});
+  }
+
+  function applyPowerUI(val){
+    const card  = document.getElementById('powerCard');
+    const label = document.getElementById('powerLabel');
+    const track = document.getElementById('powerToggle');
+    const thumb = document.getElementById('powerThumb');
+    if(!card) return;
+    systemActive = val;
+    if(val){
+      card.style.borderColor  = '#00EE55';
+      card.style.boxShadow    = '0 0 32px rgba(11,187,68,0.4)';
+      label.textContent       = 'ONLINE';
+      label.style.color       = '#00EE55';
+      track.style.background  = '#0BBB44';
+      track.style.borderColor = '#00EE55';
+      thumb.style.left        = '45px';
+      thumb.style.background  = '#fff';
+      thumb.style.boxShadow   = '0 0 10px rgba(0,238,85,0.7)';
+    } else {
+      card.style.borderColor  = '#FF2222';
+      card.style.boxShadow    = '0 0 24px rgba(220,30,30,0.3)';
+      label.textContent       = 'OFFLINE';
+      label.style.color       = '#FF4444';
+      track.style.background  = '#2A3040';
+      track.style.borderColor = '#3A4050';
+      thumb.style.left        = '5px';
+      thumb.style.background  = '#FF4444';
+      thumb.style.boxShadow   = '0 0 10px rgba(255,68,68,0.5)';
+    }
+  }
+
   let timerEnabled = false;
   function toggleTimer(){
     timerEnabled = !timerEnabled;
@@ -371,6 +429,46 @@
     thumb.style.left        = timerEnabled ? "28px"   : "4px";
     thumb.style.background  = timerEnabled ? "#000"   : "#7A8090";
     fetch("/api/admin",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({timerEnabled})}).catch(()=>{});
+  }
+
+  let systemActive = false;
+
+  function toggleSystem(){
+    systemActive = !systemActive;
+    applyPowerUI(systemActive);
+    fetch('/api/admin',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({systemActive})
+    }).catch(()=>{});
+  }
+
+  function applyPowerUI(val){
+    const card  = document.getElementById('powerCard');
+    const label = document.getElementById('powerLabel');
+    const track = document.getElementById('powerToggle');
+    const thumb = document.getElementById('powerThumb');
+    if(!card) return;
+    systemActive = val;
+    if(val){
+      card.style.borderColor  = '#00EE55';
+      card.style.boxShadow    = '0 0 32px rgba(11,187,68,0.4)';
+      label.textContent       = 'ONLINE';
+      label.style.color       = '#00EE55';
+      track.style.background  = '#0BBB44';
+      track.style.borderColor = '#00EE55';
+      thumb.style.left        = '45px';
+      thumb.style.background  = '#fff';
+      thumb.style.boxShadow   = '0 0 10px rgba(0,238,85,0.7)';
+    } else {
+      card.style.borderColor  = '#FF2222';
+      card.style.boxShadow    = '0 0 24px rgba(220,30,30,0.3)';
+      label.textContent       = 'OFFLINE';
+      label.style.color       = '#FF4444';
+      track.style.background  = '#2A3040';
+      track.style.borderColor = '#3A4050';
+      thumb.style.left        = '5px';
+      thumb.style.background  = '#FF4444';
+      thumb.style.boxShadow   = '0 0 10px rgba(255,68,68,0.5)';
+    }
   }
 
   let timerEnabled = false;
