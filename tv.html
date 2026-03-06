@@ -49,18 +49,21 @@
     0%, 100% { border-color: #CC1111; box-shadow: 0 0 0px rgba(220,30,30,0); }
     50%       { border-color: #FF4444; box-shadow: 0 0 20px rgba(255,40,40,0.5); }
   }
-  .msg { width: 100%; max-width: 420px; background: rgba(0,200,255,.1); border: 1.5px solid #00C8FF; border-radius: 8px; padding: 8px 14px; font-size: 13px; font-weight: 700; color: #00C8FF; display: none; text-align: center; }
-    .msg.show { display: block; }
-    .flash { position: fixed; inset: 0; pointer-events: none; z-index: 999; opacity: 0; }
-    .flash.go { animation: fa .5s ease forwards; }
-    @keyframes fa { 0% { opacity: .75; } 100% { opacity: 0; } }
-  
-  .fs-btn {
-    position: fixed; bottom: 20px; right: 20px; z-index: 200;
-    background: rgba(30,37,48,0.85); border: 1.5px solid #2A3040;
-    border-radius: 10px; padding: 10px 14px; cursor: pointer;
-    font-size: 18px; color: #7A8090; transition: all 0.2s;
-    backdrop-filter: blur(4px);
+  .msg {
+    width:100%; max-width:480px; border-radius:10px; padding:14px 20px;
+    text-align:center; font-family:"Arial Black",Arial,sans-serif; font-weight:900;
+    font-size:18px; letter-spacing:0.12em; text-transform:uppercase;
+    display:none; margin:0 auto;
+  }
+  .msg.show         { display:block; }
+  .msg.yellow       { background:rgba(255,210,0,0.12);   color:#FFD200; border:2px solid #FFD200; }
+  .msg.orange       { background:rgba(255,102,0,0.12);   color:#FF6600; border:2px solid #FF6600; }
+  .msg.red          { background:rgba(204,17,17,0.15);   color:#FF3333; border:2px solid #CC1111; }
+  .msg.red-blink    { background:rgba(204,17,17,0.15);   color:#FF3333; border:2px solid #CC1111;
+                      animation:msgblink 1.4s ease-in-out infinite; }
+  @keyframes msgblink {
+    0%,100% { background:rgba(204,17,17,0.15); box-shadow:0 0 0px rgba(255,30,30,0); }
+    50%     { background:rgba(204,17,17,0.35); box-shadow:0 0 22px rgba(255,40,40,0.55); }
   }
   .fs-btn:hover { border-color: #00C8FF; color: #00C8FF; }
 </style>
@@ -195,7 +198,7 @@ function t(key) { return (LANG[lang] || LANG.pl)[key] || key; }
       tb.style.display='none';clearInterval(timerInterval);
     }
     const mb=document.getElementById('msgBox');
-    if(s.adminMessage){mb.textContent=s.adminMessage;mb.className='msg show';}else{mb.className='msg';}
+    if(s.adminMessage){mb.textContent=s.adminMessage;mb.className='msg show '+(s.msgColor||'yellow');}else{mb.textContent='';mb.className='msg';}
     if(s.goSignalGiven){const f=document.getElementById('flash');f.classList.remove('go');void f.offsetWidth;f.classList.add('go');}
     const cd=document.getElementById('cd');
     if(s.judgeReady&&s.tvReady&&!s.goSignalGiven){if(!rAt){rAt=Date.now();startCD();}}
