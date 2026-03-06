@@ -385,9 +385,20 @@
   function toggleSystem(){
     systemActive = !systemActive;
     applyPowerUI(systemActive);
-    fetch('/api/admin',{method:'POST',headers:{'Content-Type':'application/json'},
+    fetch('/api/admin',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
       body:JSON.stringify({systemActive})
-    }).catch(()=>{});
+    }).then(r=>r.json()).then(d=>{
+      // confirm with flash
+      const label = document.getElementById('powerLabel');
+      if(label){ label.style.opacity='0.5'; setTimeout(()=>label.style.opacity='1', 300); }
+    }).catch(()=>{
+      // revert if failed
+      systemActive = !systemActive;
+      applyPowerUI(systemActive);
+      alert('Błąd połączenia z serwerem. Sprawdź czy serwer działa.');
+    });
   }
 
   function applyPowerUI(val){
@@ -433,13 +444,7 @@
 
   let systemActive = false;
 
-  function toggleSystem(){
-    systemActive = !systemActive;
-    applyPowerUI(systemActive);
-    fetch('/api/admin',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({systemActive})
-    }).catch(()=>{});
-  }
+  
 
   function applyPowerUI(val){
     const card  = document.getElementById('powerCard');
