@@ -208,21 +208,40 @@ function t(key) { return (LANG[lang] || LANG.pl)[key] || key; }
   function connect(){const cb=document.getElementById('cb');const es=new EventSource('/events');es.onopen=()=>{cb.textContent='Online';cb.className='conn online';};es.onmessage=e=>apply(JSON.parse(e.data));es.onerror=()=>{cb.textContent='Offline';cb.className='conn offline';es.close();setTimeout(connect,3000);};}
   connect();
 
+  var cursorTimer = null;
   function toggleFS() {
     const btn = document.getElementById('fsBtn');
     if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().catch(()=>{});
-      btn.textContent = '✕';
-      btn.title = 'Wyjdź z pełnego ekranu';
+      document.body.requestFullscreen().catch(()=>{});
     } else {
       document.exitFullscreen();
-      btn.textContent = '⛶';
-      btn.title = 'Pełny ekran';
     }
   }
   document.addEventListener('fullscreenchange', () => {
     const btn = document.getElementById('fsBtn');
-    if (btn) btn.textContent = document.fullscreenElement ? '✕' : '⛶';
+    if (document.fullscreenElement) {
+      btn.textContent = '✕';
+      btn.title = 'Wyjdź z pełnego ekranu';
+      startCursorHide();
+    } else {
+      btn.textContent = '⛶';
+      btn.title = 'Pełny ekran';
+      document.body.style.cursor = '';
+      clearTimeout(cursorTimer);
+    }
+  });
+  function startCursorHide() {
+    clearTimeout(cursorTimer);
+    document.body.style.cursor = '';
+    cursorTimer = setTimeout(() => {
+      if (document.fullscreenElement) document.body.style.cursor = 'none';
+    }, 2000);
+  }
+  document.addEventListener('mousemove', () => {
+    if (document.fullscreenElement) {
+      document.body.style.cursor = '';
+      startCursorHide();
+    }
   });
 
 </script>
