@@ -56,16 +56,21 @@
     }
     .lock { text-align: center; font-size: 36px; margin-bottom: 20px; }
   
-  .powered {
-    text-align: center; padding: 16px 0 8px;
-    opacity: 0.22; transition: opacity 0.3s;
+
+  .powered-top {
+    text-align: center; margin-bottom: 18px;
+    opacity: 0.55; transition: opacity 0.3s;
   }
-  .powered:hover { opacity: 0.5; }
-  .powered span { font-size: 9px; font-weight: 700; letter-spacing: 0.2em;
-                  text-transform: uppercase; color: #fff; }
+  .powered-top:hover { opacity: 0.85; }
+  .powered-top span {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.22em;
+    text-transform: uppercase; color: #fff;
+    text-shadow: 0 0 12px rgba(255,255,255,0.6), 0 0 28px rgba(255,255,255,0.25);
+  }
 </style>
 </head>
 <body>
+<div class="powered-top"><span>Powered by LIVEMOTION</span></div>
 <div class="box">
   <div class="lock">🔒</div>
   <div class="logo">RACE READY</div>
@@ -132,6 +137,6 @@
   }
 </script>
 
-  <div class="powered"><span>Powered by LIVEMOTION</span></div>
+
 </body>
 </html>
