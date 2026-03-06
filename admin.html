@@ -300,9 +300,9 @@ var timerInterval = null;
 
 // ── PANEL LINKS ───────────────────────────────────────────────
 function openAll() {
-  window.open('/judge',    '_blank');
-  window.open('/tv',       '_blank');
-  window.open('/operator', '_blank');
+  window.open('/judge', '_blank');
+  setTimeout(function(){ window.open('/tv',       '_blank'); }, 300);
+  setTimeout(function(){ window.open('/operator', '_blank'); }, 600);
 }
 
 // ── LOGOUT ────────────────────────────────────────────────────
