@@ -6,7 +6,8 @@ const url  = require('url');
 const PORT = process.env.PORT || 8080;
 
 let state = {
-  eventName:    'Garmin Winter Festival',
+  eventName:    '',
+  language:     'pl',
   logoBase64:   '',
   riderMode:    1,
   timerEnabled: false,
@@ -33,6 +34,7 @@ let clients = [];
 function pub() {
   return {
     eventName:    state.eventName,
+    language:     state.language,
     logoBase64:   state.logoBase64,
     riderMode:    state.riderMode,
     timerEnabled: state.timerEnabled,
@@ -158,6 +160,7 @@ http.createServer(async (req, res) => {
     if(b.runTotal!==undefined)     state.runTotal=parseInt(b.runTotal)||0;
     if(b.runCurrent!==undefined)   state.runCurrent=parseInt(b.runCurrent)||0;
     if(b.adminMessage!==undefined) state.adminMessage=b.adminMessage;
+    if(b.language!==undefined)     state.language=b.language;
     if(b.timerEnabled!==undefined)  state.timerEnabled=!!b.timerEnabled;
     if(b.systemActive!==undefined)  { state.systemActive=!!b.systemActive; if(!state.systemActive){ state.judgeReady=false; state.tvReady=false; state.goSignalGiven=false; } }
     broadcast();
