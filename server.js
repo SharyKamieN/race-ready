@@ -11,6 +11,7 @@ let state = {
   logoBase64:   '',
   riderMode:    1,
   timerEnabled: false,
+  showRun:      true,
   systemActive: false,
   judgeReady:   false,
   tvReady:      false,
@@ -72,6 +73,7 @@ function pub() {
     logoBase64:   state.logoBase64,
     riderMode:    state.riderMode,
     timerEnabled: state.timerEnabled,
+    showRun:      state.showRun,
     systemActive: state.systemActive,
     judgeReady:   state.judgeReady,
     tvReady:      state.tvReady,
@@ -221,6 +223,7 @@ http.createServer(async (req, res) => {
     if(b.adminMessage!==undefined) state.adminMessage=b.adminMessage;
     if(b.msgColor!==undefined)    state.msgColor=b.msgColor;
     if(b.language!==undefined)     state.language=b.language;
+    if(b.showRun!==undefined)      state.showRun=!!b.showRun;
     if(b.timerEnabled!==undefined)  state.timerEnabled=!!b.timerEnabled;
     if(b.systemActive!==undefined)  { state.systemActive=!!b.systemActive; if(!state.systemActive){ state.judgeReady=false; state.tvReady=false; state.goSignalGiven=false; } }
     broadcast();
