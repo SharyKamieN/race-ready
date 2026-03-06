@@ -257,11 +257,14 @@ function applyTimerUI(val) {
 }
 
 // ── RIDER MODE ─────────────────────────────────────────────────
-function setRiderMode(n) {
+function setRiderModeUI(n) {
   riderMode = n;
   document.getElementById('btn1').className = n===1 ? 'toggle-btn active' : 'toggle-btn';
   document.getElementById('btn2').className = n===2 ? 'toggle-btn active' : 'toggle-btn';
   document.getElementById('stRider2wrap').style.display = n===2 ? '' : 'none';
+}
+function setRiderMode(n) {
+  setRiderModeUI(n);
   fetch('/api/admin', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({riderMode: n})}).catch(function(){});
 }
 
@@ -325,7 +328,9 @@ function updateTimer(s) {
 }
 
 // ── APPLY STATE ────────────────────────────────────────────────
+var lastState = {};
 function applyState(s) {
+  lastState = s;
   // Power
   if (s.systemActive !== undefined && s.systemActive !== systemActive) applyPower(s.systemActive);
 
@@ -334,7 +339,7 @@ function applyState(s) {
   updateTimer(s);
 
   // Rider mode
-  if (s.riderMode !== undefined) { riderMode = s.riderMode; setRiderMode(riderMode); }
+  if (s.riderMode !== undefined) { setRiderModeUI(s.riderMode); }
   if (s.language !== undefined) {
     document.getElementById('langPL').className = s.language==='pl' ? 'toggle-btn active' : 'toggle-btn';
     document.getElementById('langEN').className = s.language==='en' ? 'toggle-btn active' : 'toggle-btn';
