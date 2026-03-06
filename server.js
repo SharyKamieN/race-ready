@@ -67,9 +67,7 @@ function resetRound() {
   state.judgeReady    = false;
   state.tvReady       = false;
   state.goSignalGiven = false;
-  state.timerRunning  = false;
-  state.timerStart    = null;
-  state.timerElapsed  = 0;
+  // Timer NIE jest resetowany tutaj — chodzi dalej aż admin go zatrzyma
   state.currentRider1 = state.nextRider1 || '';
   state.currentRider2 = state.nextRider2 || '';
   state.nextRider1    = '';
