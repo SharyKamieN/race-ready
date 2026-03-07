@@ -31,16 +31,16 @@
     .rd-num   { font-weight: 900; font-size: clamp(24px,6vw,40px); color: #FFD200; letter-spacing: 0.05em; }
 
     .timer-box { background: #181C22; border: 2px solid #252B35; border-radius: 10px; padding: 8px 24px; text-align: center; }
-    .timer-val { font-family: "Courier New",monospace; font-weight: 700; font-size: clamp(24px,5vw,38px); color: #FFD200; letter-spacing: 0.08em; }
+    .timer-val { font-family: "Courier New",monospace; font-weight: 700; font-size: clamp(24px,5vw,38px); color: var(--accent); letter-spacing: 0.08em; }
     .timer-lbl { font-size: 10px; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); }
 
     .js   { display: flex; align-items: center; gap: 10px; padding: 10px 20px; background: #181C22; border-radius: 10px; border: 2px solid #252B35; font-size: clamp(12px,2.5vw,15px); font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
     .dot  { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
     .dot.red   { background: #FF3333; box-shadow: 0 0 8px rgba(255,50,50,.7); }
     .dot.green { background: #00EE55; box-shadow: 0 0 8px rgba(0,238,85,.7); }
-    .banner { font-weight: 900; font-size: clamp(14px,3.5vw,24px); color: #00EE55; text-align: center; letter-spacing: 0.06em; opacity: 0; transition: opacity .4s; text-shadow: 0 0 30px rgba(0,238,85,.6); min-height: 30px; }
+    .banner { font-weight: 900; font-size: clamp(14px,3.5vw,24px); color: var(--accent); text-align: center; letter-spacing: 0.06em; opacity: 0; transition: opacity .4s; text-shadow: 0 0 30px rgba(0,200,255,.4); min-height: 30px; }
     .banner.show { opacity: 1; }
-    .cd { font-family: "Courier New",monospace; font-weight: 700; font-size: 15px; color: #FFD200; min-height: 22px; text-align: center; }
+    .cd { font-family: "Courier New",monospace; font-weight: 700; font-size: 15px; color: var(--accent); min-height: 22px; text-align: center; }
     .msg.yellow    { background: rgba(255,210,0,0.15);  color: #FFD200; border: 2px solid #FFD200; }
   .msg.orange    { background: rgba(255,102,0,0.15);  color: #FF6600; border: 2px solid #FF6600; }
   .msg.red       { background: rgba(204,17,17,0.15);  color: #FF2222; border: 2px solid #CC1111; }
