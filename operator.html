@@ -6,13 +6,13 @@
   <title>OPERATOR — Race Ready</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { height: 100%; background: #0A0C0F; color: #F0F4FF; font-family: "Arial Black", Arial, sans-serif; }
+    html, body { height: 100%; background: var(--bg); color: var(--text); font-family: "Arial Black", Arial, sans-serif; }
     body { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
 
-    header { background: #111418; border-bottom: 2px solid #1E2530; padding: 12px 20px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px; flex-shrink: 0; }
-    .ev    { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight: 900; font-size: clamp(11px,2vw,16px); color: #00C8FF; text-transform: uppercase; letter-spacing: 0.06em; display: flex; align-items: center; gap: 10px; }
+    header { background: var(--bg2); border-bottom: 2px solid #1E2530; padding: 12px 20px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px; flex-shrink: 0; }
+    .ev    { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight: 900; font-size: clamp(11px,2vw,16px); color: var(--accent); text-transform: uppercase; letter-spacing: 0.06em; display: flex; align-items: center; gap: 10px; }
     .ev img { height: 28px; object-fit: contain; display: none; }
-    .role  { font-weight: 700; font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: #7A8090; border: 1.5px solid #2A3040; padding: 3px 10px; border-radius: 4px; }
+    .role  { font-weight: 700; font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); border: 1.5px solid var(--border); padding: 3px 10px; border-radius: 4px; }
     .conn  { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; width: fit-content; justify-self: end; }
     .conn.online  { background: rgba(11,187,68,.18); color: #00EE55; border: 1px solid #00EE55; }
     .conn.offline { background: rgba(220,30,30,.18); color: #FF4444; border: 1px solid #FF4444; }
@@ -27,7 +27,7 @@
     .csq   { width: 100px; height: 100px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 24px; color: #fff; border-style: solid; }
     .csq.red   { background: #CC1111; border: 5px solid #FF2222; box-shadow: 0 0 16px rgba(220,30,30,.5); }
     .csq.green { background: #0BBB44; border: 5px solid #00EE55; box-shadow: 0 0 24px rgba(11,187,68,.6); }
-    .clbl  { font-weight: 800; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: #7A8090; }
+    .clbl  { font-weight: 800; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); }
     .cst   { font-weight: 900; font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; }
     .cst.g { color: #00EE55; } .cst.r { color: #FF4444; }
 
@@ -38,26 +38,26 @@
     .riders-grid.mode2 { grid-template-columns: 1fr 1fr; }
 
     .rider-box { background: #181C22; border: 1.5px solid #252B35; border-radius: 10px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; }
-    .rb-label  { font-size: 10px; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; color: #7A8090; }
-    .rb-label.current { color: #00C8FF; }
+    .rb-label  { font-size: 10px; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); }
+    .rb-label.current { color: var(--accent); }
     .rb-label.next    { color: #FFD200; }
-    .rb-input  { background: transparent; border: none; border-bottom: 1.5px solid #2A3040; color: #F0F4FF; font-family: "Arial Black", Arial, sans-serif; font-weight: 900; font-size: 22px; padding: 4px 0; outline: none; width: 100%; transition: border-color .2s; }
-    .rb-input:focus { border-color: #00C8FF; }
+    .rb-input  { background: transparent; border: none; border-bottom: 1.5px solid var(--border); color: var(--text); font-family: "Arial Black", Arial, sans-serif; font-weight: 900; font-size: 22px; padding: 4px 0; outline: none; width: 100%; transition: border-color .2s; }
+    .rb-input:focus { border-color: var(--accent); }
     .rb-input.next-input:focus { border-color: #FFD200; }
 
-    .riders-save { background: #00C8FF; border: none; border-radius: 8px; color: #000; font-family: "Arial Black", Arial, sans-serif; font-weight: 900; font-size: 13px; letter-spacing: 0.1em; padding: 10px 20px; cursor: pointer; text-transform: uppercase; align-self: center; }
+    .riders-save { background: var(--accent); border: none; border-radius: 8px; color: #000; font-family: "Arial Black", Arial, sans-serif; font-weight: 900; font-size: 13px; letter-spacing: 0.1em; padding: 10px 20px; cursor: pointer; text-transform: uppercase; align-self: center; }
     .riders-save:active { opacity: 0.8; }
 
     /* run badge */
-    .run-badge { font-size: 13px; font-weight: 700; letter-spacing: 0.15em; color: #7A8090; text-transform: uppercase; text-align: center; }
-    .run-badge span { color: #00C8FF; }
+    .run-badge { font-size: 13px; font-weight: 700; letter-spacing: 0.15em; color: var(--muted); text-transform: uppercase; text-align: center; }
+    .run-badge span { color: var(--accent); }
 
     /* ── GO BUTTON ── */
     .go-wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; }
-    .go-hint  { font-size: clamp(12px,2.5vw,16px); font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #7A8090; text-align: center; }
+    .go-hint  { font-size: clamp(12px,2.5vw,16px); font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); text-align: center; }
     .go-hint.can { color: #FF8800; }
     .go-btn   { display: flex; align-items: center; justify-content: center; width: min(85vw,460px); height: 84px; border-radius: 12px; font-family: "Arial Black",Arial,sans-serif; font-weight: 900; font-size: clamp(26px,5vw,42px); letter-spacing: 0.08em; white-space: nowrap; cursor: pointer; user-select: none; transition: all .2s; border-style: solid; border-width: 6px; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
-    .go-btn.locked { background: #1A1E25; border-color: #2A3040; color: #7A8090; cursor: not-allowed; }
+    .go-btn.locked { background: #1A1E25; border-color: var(--border); color: var(--muted); cursor: not-allowed; }
     .go-btn.ready  { background: #EE6600; border-color: #FF9944; color: #fff; box-shadow: 0 0 60px rgba(238,102,0,.6); animation: gp .9s ease-in-out infinite alternate; cursor: pointer; }
     .go-btn.fired  { background: #0BBB44; border-color: #00EE55; color: #fff; box-shadow: 0 0 80px rgba(11,187,68,.6); }
     @keyframes gp { from { box-shadow: 0 0 30px rgba(238,102,0,.5); transform: scale(1); } to { box-shadow: 0 0 90px rgba(238,102,0,.8); transform: scale(1.03); } }
@@ -66,7 +66,7 @@
     .fired-banner.show { opacity: 1; }
 
     .cd  { font-family: "Courier New",monospace; font-weight: 700; font-size: 16px; color: #FFD200; min-height: 22px; text-align: center; }
-    .rst { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #7A8090; cursor: pointer; padding: 7px 16px; border: 1.5px solid #2A3040; border-radius: 6px; background: transparent; font-family: Arial,sans-serif; }
+    .rst { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); cursor: pointer; padding: 7px 16px; border: 1.5px solid var(--border); border-radius: 6px; background: transparent; font-family: Arial,sans-serif; }
 
     /* msg banner */
     .msg-banner {
@@ -89,9 +89,9 @@
     position: fixed; bottom: 10px; right: 12px; z-index: 200;
     background: rgba(10,12,15,0.6); border: 1px solid #1E2530;
     border-radius: 6px; padding: 4px 7px; cursor: pointer;
-    font-size: 11px; color: #2A3040; transition: all 0.3s; line-height: 1;
+    font-size: 11px; color: var(--border); transition: all 0.3s; line-height: 1;
   }
-  .fs-btn:hover { color: #7A8090; border-color: #3A4050; }
+  .fs-btn:hover { color: var(--muted); border-color: #3A4050; }
 
   .powered {
     position: fixed; bottom: 8px; left: 0; right: 0;
@@ -102,6 +102,41 @@
   .powered:hover { opacity: 0.5; }
   .powered span { font-size: 9px; font-weight: 700; letter-spacing: 0.2em;
                   text-transform: uppercase; color: #fff; white-space: nowrap; }
+  /* ── CSS VARIABLES ── */
+  :root {
+    --bg:      #0A0C0F;
+    --bg2:     #111418;
+    --bg3:     #181C22;
+    --border:  var(--border);
+    --text:    #F0F4FF;
+    --muted:   #7A8090;
+    --accent:  var(--accent);
+    --green:   #00EE55;
+    --red:     #CC1111;
+  }
+  body.light {
+    --bg:      #D8E4F0;
+    --bg2:     #EDF2FA;
+    --bg3:     #FFFFFF;
+    --border:  #B0BDD0;
+    --text:    #080C18;
+    --muted:   #5060A0;
+    --green:   #0AAA44;
+    --red:     #CC1111;
+  }
+  body { background: var(--bg); color: var(--text); transition: background 0.3s, color 0.3s; }
+  #flash {
+    display:none; position:fixed; inset:0; z-index:500; pointer-events:none;
+    background:rgba(11,187,68,0.45);
+  }
+  #flash.go {
+    display:block;
+    animation: flashgo 0.8s ease-out forwards;
+  }
+  @keyframes flashgo {
+    0%   { opacity:1; }
+    100% { opacity:0; }
+  }
 </style>
 <!-- v1772868914 -->
 </head>
@@ -184,7 +219,15 @@
 
 <script>
 
-// ── i18n ───────────────────────────────────────────────────────
+
+  // ── THEME + ACCENT ─────────────────────────────────────────
+  function applyTheme(theme, accent) {
+    if (theme === 'light') document.body.classList.add('light');
+    else document.body.classList.remove('light');
+    if (accent) document.documentElement.style.setProperty('--accent', accent);
+  }
+
+  // ── i18n ───────────────────────────────────────────────────────
 var LANG = {
   pl: {
     judge_instr_idle:  'Naciśnij gdy gotowy do startu zawodnika',
@@ -265,6 +308,7 @@ function t(key) { return (LANG[lang] || LANG.pl)[key] || key; }
     const ov = document.getElementById('sysOverlay');
     ov.style.display = s.systemActive ? 'none' : 'flex';
     if(s.language !== undefined && s.language !== lang){ lang=s.language; }
+    if(s.theme !== undefined || s.accentColor !== undefined) applyTheme(s.theme, s.accentColor);
     if(s.eventName) document.getElementById('evName').textContent = s.eventName;
     const logo = document.getElementById('logoImg');
     if(s.logoBase64){ logo.src=s.logoBase64; logo.style.display='block'; } else { logo.style.display='none'; }
