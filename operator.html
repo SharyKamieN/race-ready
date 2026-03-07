@@ -105,6 +105,7 @@
   .powered span { font-size: 9px; font-weight: 700; letter-spacing: 0.2em;
                   text-transform: uppercase; color: #fff; white-space: nowrap; }
 </style>
+<!-- v1772868914 -->
 </head>
 <body>
 <header>
@@ -319,7 +320,7 @@ function t(key) { return (LANG[lang] || LANG.pl)[key] || key; }
 
     // Admin message
     const mb = document.getElementById('msgBanner');
-    if(s.adminMessage){ mb.textContent=s.adminMessage; mb.className='msg-banner show '+(s.msgColor||'yellow'); }
+    if(s.adminMessage){ mb.textContent=s.adminMessage; var mc = s.msgColor && s.msgColor.length ? s.msgColor : 'yellow'; mb.className='msg-banner show '+mc; }
     else { mb.textContent=''; mb.className='msg-banner'; }
 
     // Sync rider inputs (only if not focused)
