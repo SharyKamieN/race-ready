@@ -63,6 +63,7 @@ let state = {
   msgColor:     '',
   theme:        'dark',
   accentColor:  '#00C8FF',
+  showRiders:   true,
   history:      [],
   _autoReset:   null,
 };
@@ -139,6 +140,7 @@ function pub() {
     msgColor:     state.msgColor,
     theme:        state.theme,
     accentColor:  state.accentColor,
+    showRiders:   state.showRiders,
     history:      state.history,
     ts:           Date.now(),
   };
@@ -271,6 +273,7 @@ http.createServer(async (req, res) => {
     if(b.showRun!==undefined)      state.showRun=!!b.showRun;
     if(b.theme!==undefined)        state.theme=b.theme;
     if(b.accentColor!==undefined)  state.accentColor=b.accentColor;
+    if(b.showRiders!==undefined)   state.showRiders=!!b.showRiders;
     if(b.timerEnabled!==undefined) state.timerEnabled=!!b.timerEnabled;
     if(b.systemActive!==undefined) { state.systemActive=!!b.systemActive; if(!state.systemActive){ state.judgeReady=false; state.tvReady=false; state.goSignalGiven=false; } }
     broadcast(); json(res,200,{ok:true}); return;
