@@ -6,17 +6,17 @@
   <title>TV / REŻYSER — Race Ready</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { height: 100%; background: #0A0C0F; color: #F0F4FF; font-family: "Arial Black", Arial, sans-serif; }
+    html, body { height: 100%; background: var(--bg); color: var(--text); font-family: "Arial Black", Arial, sans-serif; }
     body { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
     header { background: #111418; border-bottom: 2px solid #1E2530; padding: 12px 20px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px; flex-shrink: 0; }
-    .ev   { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight: 900; font-size: clamp(11px,2vw,16px); color: #00C8FF; text-transform: uppercase; letter-spacing: 0.06em; display: flex; align-items: center; gap: 10px; }
+    .ev   { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight: 900; font-size: clamp(11px,2vw,16px); color: var(--accent); text-transform: uppercase; letter-spacing: 0.06em; display: flex; align-items: center; gap: 10px; }
     .ev img { height: 28px; object-fit: contain; display: none; }
-    .role { font-weight: 700; font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: #7A8090; border: 1.5px solid #2A3040; padding: 3px 10px; border-radius: 4px; }
+    .role { font-weight: 700; font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); border: 1.5px solid var(--border); padding: 3px 10px; border-radius: 4px; }
     .conn { justify-self:end; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; }
     .conn.online  { background: rgba(11,187,68,.18); color: #00EE55; border: 1px solid #00EE55; }
     .conn.offline { background: rgba(220,30,30,.18); color: #FF4444; border: 1px solid #FF4444; }
     main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; padding: 20px; overflow: hidden; }
-    .instr { font-size: clamp(13px,3vw,20px); font-weight: 700; letter-spacing: 0.1em; color: #7A8090; text-align: center; text-transform: uppercase; max-width: 500px; }
+    .instr { font-size: clamp(13px,3vw,20px); font-weight: 700; letter-spacing: 0.1em; color: var(--muted); text-align: center; text-transform: uppercase; max-width: 500px; }
     .instr.ok { color: #00EE55; }
     .btn { display: flex; flex-direction: column; align-items: center; justify-content: center; width: min(72vw,340px); height: min(72vw,340px); border-radius: 16px; cursor: pointer; user-select: none; transition: transform .12s; -webkit-tap-highlight-color: transparent; touch-action: manipulation; border-style: solid; }
     .btn.red   { background: #CC1111; border: 10px solid #FF2222; box-shadow: 0 0 50px rgba(220,30,30,.6), inset 0 0 40px rgba(0,0,0,.25); }
@@ -27,14 +27,14 @@
 
     .riders-display { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
     .rd-box { background: #181C22; border: 2px solid #252B35; border-radius: 10px; padding: 10px 20px; text-align: center; min-width: 100px; }
-    .rd-label { font-size: 10px; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; color: #00C8FF; margin-bottom: 4px; }
+    .rd-label { font-size: 10px; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); margin-bottom: 4px; }
     .rd-num   { font-weight: 900; font-size: clamp(24px,6vw,40px); color: #FFD200; letter-spacing: 0.05em; }
 
     .timer-box { background: #181C22; border: 2px solid #252B35; border-radius: 10px; padding: 8px 24px; text-align: center; }
     .timer-val { font-family: "Courier New",monospace; font-weight: 700; font-size: clamp(24px,5vw,38px); color: #FFD200; letter-spacing: 0.08em; }
-    .timer-lbl { font-size: 10px; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; color: #7A8090; }
+    .timer-lbl { font-size: 10px; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); }
 
-    .js   { display: flex; align-items: center; gap: 10px; padding: 10px 20px; background: #181C22; border-radius: 10px; border: 2px solid #252B35; font-size: clamp(12px,2.5vw,15px); font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #7A8090; }
+    .js   { display: flex; align-items: center; gap: 10px; padding: 10px 20px; background: #181C22; border-radius: 10px; border: 2px solid #252B35; font-size: clamp(12px,2.5vw,15px); font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
     .dot  { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
     .dot.red   { background: #FF3333; box-shadow: 0 0 8px rgba(255,50,50,.7); }
     .dot.green { background: #00EE55; box-shadow: 0 0 8px rgba(0,238,85,.7); }
@@ -69,9 +69,9 @@
     position: fixed; bottom: 10px; right: 12px; z-index: 200;
     background: rgba(10,12,15,0.6); border: 1px solid #1E2530;
     border-radius: 6px; padding: 4px 7px; cursor: pointer;
-    font-size: 11px; color: #2A3040; transition: all 0.3s; line-height: 1;
+    font-size: 11px; color: var(--border); transition: all 0.3s; line-height: 1;
   }
-  .fs-btn:hover { color: #7A8090; border-color: #3A4050; }
+  .fs-btn:hover { color: var(--muted); border-color: #3A4050; }
 
   .powered {
     position: fixed; bottom: 8px; left: 0; right: 0;
@@ -82,6 +82,29 @@
   .powered:hover { opacity: 0.5; }
   .powered span { font-size: 9px; font-weight: 700; letter-spacing: 0.2em;
                   text-transform: uppercase; color: #fff; white-space: nowrap; }
+  /* ── CSS VARIABLES ── */
+  :root {
+    --bg:      #0A0C0F;
+    --bg2:     #111418;
+    --bg3:     #181C22;
+    --border:  var(--border);
+    --text:    #F0F4FF;
+    --muted:   #7A8090;
+    --accent:  var(--accent);
+    --green:   #00EE55;
+    --red:     #CC1111;
+  }
+  body.light {
+    --bg:      #D8E4F0;
+    --bg2:     #EDF2FA;
+    --bg3:     #FFFFFF;
+    --border:  #B0BDD0;
+    --text:    #080C18;
+    --muted:   #5060A0;
+    --green:   #0AAA44;
+    --red:     #CC1111;
+  }
+  body { background: var(--bg); color: var(--text); transition: background 0.3s, color 0.3s; }
 </style>
 </head>
 <body>
@@ -118,7 +141,15 @@
 <div class="flash" id="flash" style="background:rgba(11,187,68,.35)"></div>
 <script>
 
-// ── i18n ───────────────────────────────────────────────────────
+
+  // ── THEME + ACCENT ─────────────────────────────────────────
+  function applyTheme(theme, accent) {
+    if (theme === 'light') document.body.classList.add('light');
+    else document.body.classList.remove('light');
+    if (accent) document.documentElement.style.setProperty('--accent', accent);
+  }
+
+  // ── i18n ───────────────────────────────────────────────────────
 var LANG = {
   pl: {
     judge_instr_idle:  'Naciśnij gdy gotowy do startu zawodnika',
@@ -187,6 +218,7 @@ function t(key) { return (LANG[lang] || LANG.pl)[key] || key; }
     const ov = document.getElementById('sysOverlay');
     ov.style.display = s.systemActive ? 'none' : 'flex';
     if(s.language !== undefined && s.language !== lang){ lang=s.language; }
+    if(s.theme !== undefined || s.accentColor !== undefined) applyTheme(s.theme, s.accentColor);
     if(s.eventName) document.getElementById('evName').textContent=s.eventName;
     const logo=document.getElementById('logoImg');
     if(s.logoBase64){logo.src=s.logoBase64;logo.style.display='block';}else{logo.style.display='none';}
