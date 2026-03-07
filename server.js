@@ -19,15 +19,55 @@ function loadData() {
   } catch(e) {}
   return {
     admins: [{ login: 'admin', password: 'ledcity1063', role: 'superadmin' }],
-    profiles: []
+    profiles: [],
+    savedState: null
   };
 }
 
 function saveData() {
-  try { fs.writeFileSync(DATA_FILE, JSON.stringify(appData, null, 2)); } catch(e) {}
+  try {
+    const saved = Object.assign({}, appData, {
+      lastState: {
+        eventName:   state.eventName,
+        language:    state.language,
+        logoBase64:  state.logoBase64,
+        riderMode:   state.riderMode,
+        timerEnabled:state.timerEnabled,
+        showRun:     state.showRun,
+        showRiders:  state.showRiders,
+        systemActive:state.systemActive,
+        runTotal:    state.runTotal,
+        theme:       state.theme,
+        accentColor: state.accentColor,
+        history:     state.history,
+      }
+    });
+    appData._lastSave = new Date().toISOString();
+    fs.writeFileSync(DATA_FILE, JSON.stringify(saved, null, 2));
+  } catch(e) {}
 }
 
+// Auto-save every 30 seconds
+setInterval(saveData, 30000);
+
 let appData = loadData();
+
+// Restore last state from saved data
+if (appData.lastState) {
+  const ls = appData.lastState;
+  if (ls.eventName   !== undefined) state.eventName   = ls.eventName;
+  if (ls.language    !== undefined) state.language    = ls.language;
+  if (ls.logoBase64  !== undefined) state.logoBase64  = ls.logoBase64;
+  if (ls.riderMode   !== undefined) state.riderMode   = ls.riderMode;
+  if (ls.timerEnabled!== undefined) state.timerEnabled= ls.timerEnabled;
+  if (ls.showRun     !== undefined) state.showRun     = ls.showRun;
+  if (ls.showRiders  !== undefined) state.showRiders  = ls.showRiders;
+  if (ls.runTotal    !== undefined) state.runTotal    = ls.runTotal;
+  if (ls.theme       !== undefined) state.theme       = ls.theme;
+  if (ls.accentColor !== undefined) state.accentColor = ls.accentColor;
+  if (ls.history     !== undefined) state.history     = ls.history;
+  // systemActive always starts false for safety
+}
 
 // Helper: find admin by login
 function findAdmin(login) {
@@ -69,6 +109,7 @@ let state = {
 };
 
 let clients = [];
+restoreState();
 
 // ── AUTH ────────────────────────────────────────────────────────
 const sessions = new Map(); // token -> { login, lastActivity }
@@ -207,6 +248,18 @@ http.createServer(async (req, res) => {
     json(res,403,{ok:false,reason:'System offline'}); return;
   }
 
+
+  // ── STATUS / PING ────────────────────────────────────────────
+  if (p === '/api/status' && req.method === 'GET') {
+    json(res, 200, {
+      ok: true,
+      connectedClients: clients.length,
+      uptime: Math.floor(process.uptime()),
+      serverTime: Date.now(),
+    });
+    return;
+  }
+
   if (p==='/api/state') { res.writeHead(200,{'Content-Type':'application/json'}); res.end(JSON.stringify(pub())); return; }
 
   // ── JUDGE / TV / GO / RESET ──
@@ -286,6 +339,22 @@ http.createServer(async (req, res) => {
     if(b.nextRider1!==undefined)    state.nextRider1=b.nextRider1;
     if(b.nextRider2!==undefined)    state.nextRider2=b.nextRider2;
     broadcast(); json(res,200,{ok:true}); return;
+  }
+
+
+  // ── SYSTEM STATUS ─────────────────────────────────────────
+  if (p === '/api/status' && req.method === 'GET') {
+    if (!isAuthed(req)) { json(res,401,{ok:false}); return; }
+    json(res, 200, {
+      ok: true,
+      clients:  clients.length,
+      uptime:   Math.floor(process.uptime()),
+      memory:   Math.round(process.memoryUsage().rss / 1024 / 1024),
+      profiles: appData.profiles.length,
+      admins:   appData.admins.length,
+      lastSave: appData._lastSave || null,
+    });
+    return;
   }
 
   // ── PROFILES API ─────────────────────────────────────────────
