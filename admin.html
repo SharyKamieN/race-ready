@@ -201,6 +201,39 @@
   </div>
 
 
+
+  <!-- ── STATUS & QR ── -->
+  <div class="card full" style="padding:18px 24px;">
+    <div class="card-title">📡 Stan systemu</div>
+    <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:8px;align-items:center;">
+      <div style="display:flex;flex-direction:column;gap:6px;min-width:160px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:10px;color:#7A8090;letter-spacing:0.1em;">POŁĄCZONE URZĄDZENIA</span>
+        </div>
+        <div style="font-family:'Arial Black',Arial,sans-serif;font-size:28px;font-weight:900;color:var(--accent);" id="sysClients">—</div>
+        <div style="font-size:10px;color:#7A8090;" id="sysUptime">Uptime: —</div>
+        <div style="font-size:10px;" id="sysPing">Ping: —</div>
+      </div>
+      <div style="flex:1;min-width:200px;">
+        <div style="font-size:10px;color:#7A8090;letter-spacing:0.1em;margin-bottom:8px;">QR KODY DO PANELI</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <div style="text-align:center;">
+            <canvas id="qrJudge" width="80" height="80"></canvas>
+            <div style="font-size:9px;color:#7A8090;margin-top:3px;letter-spacing:0.08em;">JUDGE</div>
+          </div>
+          <div style="text-align:center;">
+            <canvas id="qrTv" width="80" height="80"></canvas>
+            <div style="font-size:9px;color:#7A8090;margin-top:3px;letter-spacing:0.08em;">TV</div>
+          </div>
+          <div style="text-align:center;">
+            <canvas id="qrOperator" width="80" height="80"></canvas>
+            <div style="font-size:9px;color:#7A8090;margin-top:3px;letter-spacing:0.08em;">OPERATOR</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ── PANEL LINKS ── -->
   <div class="card full" style="padding: 18px 24px;">
     <div class="card-title">🔗 Otwórz panele</div>
@@ -389,6 +422,54 @@ function openAll() {
   setTimeout(function(){ window.open('/tv',       '_blank'); }, 300);
   setTimeout(function(){ window.open('/operator', '_blank'); }, 600);
 }
+
+
+// ── SYSTEM STATUS ───────────────────────────────────────────────
+var pingStart = 0;
+
+function updateStatus() {
+  pingStart = Date.now();
+  fetch('/api/status')
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+      var ping = Date.now() - pingStart;
+      document.getElementById('sysClients').textContent = d.connectedClients;
+      var up = d.uptime;
+      var h = Math.floor(up/3600), m = Math.floor((up%3600)/60), s = up%60;
+      document.getElementById('sysUptime').textContent =
+        'Uptime: ' + (h>0?h+'h ':'') + (m>0?m+'m ':'') + s+'s';
+      var pingEl = document.getElementById('sysPing');
+      pingEl.textContent = 'Ping: ' + ping + 'ms';
+      pingEl.style.color = ping < 100 ? '#00EE55' : ping < 300 ? '#FFD200' : '#FF4444';
+    })
+    .catch(function(){ document.getElementById('sysClients').textContent = '?'; });
+}
+
+setInterval(updateStatus, 5000);
+updateStatus();
+
+// ── QR CODES ────────────────────────────────────────────────────
+// Minimal QR using Google Charts API (no external lib needed)
+function drawQR(canvasId, path) {
+  var canvas = document.getElementById(canvasId);
+  var url = window.location.origin + path;
+  var img = new Image();
+  var size = 80;
+  img.onload = function() {
+    var ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0, size, size);
+  };
+  img.src = 'https://api.qrserver.com/v1/create-qr-code/?size='+size+'x'+size+'&data='+encodeURIComponent(url)+'&bgcolor=111418&color=00C8FF&qzone=1';
+}
+
+function initQR() {
+  drawQR('qrJudge',    '/judge');
+  drawQR('qrTv',       '/tv');
+  drawQR('qrOperator', '/operator');
+}
+
+// Init QR after page loads
+setTimeout(initQR, 500);
 
 // ── LOGOUT ────────────────────────────────────────────────────
 function doLogout() {
