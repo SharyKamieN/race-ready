@@ -373,6 +373,7 @@ function t(key) { return (LANG[lang] || LANG.pl)[key] || key; }
     const goBtn=document.getElementById('goBtn'), goHint=document.getElementById('goHint'), fb=document.getElementById('firedBanner');
     if(s.goSignalGiven){
       goBtn.className='go-btn fired'; goHint.textContent=t('signal_sent'); goHint.className='go-hint'; fb.textContent=t('rider_released'); fb.className='fired-banner show';
+      if(!prevGo){ prevGo=true; var f=document.getElementById('flash'); f.classList.remove('go'); void f.offsetWidth; f.classList.add('go'); }
       // flash removed per user request
     } else if(canGo){
       goBtn.className='go-btn ready'; goHint.textContent=t('press_go'); goHint.className='go-hint can'; fb.className='fired-banner';
@@ -384,6 +385,7 @@ function t(key) { return (LANG[lang] || LANG.pl)[key] || key; }
 
     // Countdown
     const cd=document.getElementById('cd');
+    if(!s.goSignalGiven) prevGo=false;
     if(s.judgeReady&&s.tvReady&&!s.goSignalGiven){ if(!rAt){rAt=Date.now();startCD();} }
     else { rAt=null; clearInterval(cdi); cdi=null; cd.textContent=''; }
   }
