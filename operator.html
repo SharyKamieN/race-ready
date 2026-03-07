@@ -126,16 +126,16 @@
   }
   body { background: var(--bg); color: var(--text); transition: background 0.3s, color 0.3s; }
   #flash {
-    display:none; position:fixed; inset:0; z-index:500; pointer-events:none;
-    background:rgba(11,187,68,0.45);
+    display:none; position:fixed; inset:0; z-index:10000; pointer-events:none;
+    background:rgba(11,187,68,0.5);
   }
   #flash.go {
     display:block;
-    animation: flashgo 0.8s ease-out forwards;
+    animation: flashgo 0.7s ease-out forwards;
   }
   @keyframes flashgo {
     0%   { opacity:1; }
-    100% { opacity:0; }
+    100% { opacity:0; display:none; }
   }
 </style>
 <!-- v1772868914 -->
@@ -215,7 +215,7 @@
   <button class="rst" onclick="doReset()">⟳ RESET RĘCZNY</button>
 </main>
 
-<div id="flash" style="display:none"></div>
+<div id="flash"></div>
 
 <script>
 
