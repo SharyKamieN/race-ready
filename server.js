@@ -61,6 +61,8 @@ let state = {
   timerElapsed: 0,
   adminMessage: '',
   msgColor:     '',
+  theme:        'dark',
+  accentColor:  '#00C8FF',
   history:      [],
   _autoReset:   null,
 };
@@ -135,6 +137,8 @@ function pub() {
     timerElapsed: state.timerElapsed,
     adminMessage: state.adminMessage,
     msgColor:     state.msgColor,
+    theme:        state.theme,
+    accentColor:  state.accentColor,
     history:      state.history,
     ts:           Date.now(),
   };
@@ -265,6 +269,8 @@ http.createServer(async (req, res) => {
     if(b.msgColor!==undefined)     state.msgColor=b.msgColor;
     if(b.language!==undefined)     state.language=b.language;
     if(b.showRun!==undefined)      state.showRun=!!b.showRun;
+    if(b.theme!==undefined)        state.theme=b.theme;
+    if(b.accentColor!==undefined)  state.accentColor=b.accentColor;
     if(b.timerEnabled!==undefined) state.timerEnabled=!!b.timerEnabled;
     if(b.systemActive!==undefined) { state.systemActive=!!b.systemActive; if(!state.systemActive){ state.judgeReady=false; state.tvReady=false; state.goSignalGiven=false; } }
     broadcast(); json(res,200,{ok:true}); return;
@@ -304,6 +310,8 @@ http.createServer(async (req, res) => {
       timerEnabled:b.timerEnabled|| false,
       showRun:     b.showRun     || false,
       runTotal:    b.runTotal    || 0,
+      theme:       b.theme       || 'dark',
+      accentColor: b.accentColor || '#00C8FF',
     };
     const idx = appData.profiles.findIndex(p => p.id === profile.id);
     if (idx >= 0) appData.profiles[idx] = profile;
@@ -325,6 +333,8 @@ http.createServer(async (req, res) => {
     state.timerEnabled= prof.timerEnabled|| false;
     state.showRun     = prof.showRun     || false;
     state.runTotal    = prof.runTotal    || 0;
+    state.theme       = prof.theme       || 'dark';
+    state.accentColor = prof.accentColor || '#00C8FF';
     broadcast();
     json(res,200,{ok:true}); return;
   }
