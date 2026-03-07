@@ -70,14 +70,14 @@
 
     /* msg banner */
     .msg-banner {
-    width:100%; padding:12px 20px; border-radius:10px; margin-bottom:8px;
-    text-align:center; font-family:"Arial Black",Arial,sans-serif; font-weight:900;
-    font-size:16px; letter-spacing:0.12em; text-transform:uppercase;
-    display:none;
+    width:100%; box-sizing:border-box; padding:14px 20px; border-radius:10px;
+    margin:0 0 12px; text-align:center; font-family:"Arial Black",Arial,sans-serif;
+    font-weight:900; font-size:16px; letter-spacing:0.12em; text-transform:uppercase;
+    display:none; border:2px solid transparent;
   }
   .msg-banner.show      { display:block; }
-  .msg-banner.yellow    { background:rgba(255,210,0,0.12);  color:#FFD200; border:2px solid #FFD200; }
-  .msg-banner.orange    { background:rgba(255,102,0,0.12);  color:#FF6600; border:2px solid #FF6600; }
+  .msg-banner.yellow    { background:rgba(255,210,0,0.15);  color:#FFD200; border-color:#FFD200; box-shadow:0 0 14px rgba(255,210,0,0.3); }
+  .msg-banner.orange    { background:rgba(255,102,0,0.15);  color:#FF6600; border-color:#FF6600; box-shadow:0 0 14px rgba(255,102,0,0.3); }
   .msg-banner.red       { background:rgba(204,17,17,0.15);  color:#FF3333; border:2px solid #CC1111; }
   .msg-banner.red-blink { background:rgba(204,17,17,0.2); color:#FF3333; border:2px solid #CC1111;
                           animation:opblink 1.2s ease-in-out infinite; }
@@ -117,6 +117,9 @@
 </header>
 
 <main>
+  <!-- Admin message -->
+  <div class="msg-banner" id="msgBanner"></div>
+
   <!-- Status cards -->
   <div class="cards">
     <div class="card r" id="jCard">
@@ -133,9 +136,6 @@
 
   <!-- Run badge -->
   <div class="run-badge" id="runBadge" style="display:none">Run <span id="runTxt">—</span></div>
-
-  <!-- Admin message -->
-  <div class="msg-banner" id="msgBanner"></div>
 
   <!-- Riders -->
   <div class="riders-section">
