@@ -460,6 +460,17 @@ function setAccent(color) {
     body:JSON.stringify({accentColor: color})}).catch(function(){});
 }
 
+// ── SHOW RIDERS TOGGLE ─────────────────────────────────────────
+function toggleShowRiders() {
+  var sl = document.getElementById('ridersSlider');
+  var kn = document.getElementById('ridersKnob');
+  var isOn = sl.classList.contains('on');
+  var next = !isOn;
+  sl.className = next ? 'slider on' : 'slider';
+  kn.className = next ? 'slider-knob on' : 'slider-knob off';
+  fetch('/api/admin', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({showRiders: next})}).catch(function(){});
+}
+
 // ── SHOW RUN TOGGLE ───────────────────────────────────────────
 function toggleShowRun() {
   var sl = document.getElementById('runSlider');
@@ -597,6 +608,10 @@ function applyState(s) {
     document.querySelectorAll('.accent-dot').forEach(function(d){
       d.classList.toggle('active', d.style.background === s.accentColor);
     });
+  }
+  if (s.showRiders !== undefined) {
+    document.getElementById('ridersSlider').className = s.showRiders ? 'slider on' : 'slider';
+    document.getElementById('ridersKnob').className   = s.showRiders ? 'slider-knob on' : 'slider-knob off';
   }
   if (s.showRun !== undefined) {
     document.getElementById('runSlider').className = s.showRun ? 'slider on' : 'slider';
