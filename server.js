@@ -437,7 +437,13 @@ http.createServer(async (req, res) => {
 
   fs.readFile(path.join(DIR, file), (err,data) => {
     if(err){ res.writeHead(404); res.end('Not found: '+file); return; }
-    res.writeHead(200,{'Content-Type':MIME[path.extname(file)]||'text/plain'});
+    const ct = MIME[path.extname(file)]||'text/plain';
+    const headers = {'Content-Type': ct};
+    if (ct.includes('text/html')) {
+      headers['Cache-Control'] = 'no-store, no-cache, must-revalidate';
+      headers['Pragma'] = 'no-cache';
+    }
+    res.writeHead(200, headers);
     res.end(data);
   });
 
