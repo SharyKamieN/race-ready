@@ -70,22 +70,20 @@
 
     /* msg banner */
     .msg-banner {
-    width:100%; box-sizing:border-box; padding:14px 20px; border-radius:10px;
-    margin:0 0 12px; text-align:center; font-family:"Arial Black",Arial,sans-serif;
-    font-weight:900; font-size:16px; letter-spacing:0.12em; text-transform:uppercase;
-    display:none; border:2px solid transparent;
+    width:100%; max-width:600px; border-radius:10px; padding:14px 20px;
+    text-align:center; font-family:"Arial Black",Arial,sans-serif; font-weight:900;
+    font-size:18px; letter-spacing:0.12em; text-transform:uppercase;
+    display:none; margin:0 auto 12px;
   }
   .msg-banner.show      { display:block; }
-  .msg-banner.yellow    { background:rgba(255,210,0,0.15);  color:#FFD200; border-color:#FFD200; box-shadow:0 0 14px rgba(255,210,0,0.3); }
-  .msg-banner.orange    { background:rgba(255,102,0,0.15);  color:#FF6600; border-color:#FF6600; box-shadow:0 0 14px rgba(255,102,0,0.3); }
-  .msg-banner.red       { background:rgba(204,17,17,0.15);  color:#FF3333; border:2px solid #CC1111; }
-  .msg-banner.red-blink { background:rgba(204,17,17,0.2); color:#FF3333; border:2px solid #CC1111;
-                          animation:opblink 1.2s ease-in-out infinite; }
-  @keyframes opblink {
-    0%,100% { background:rgba(204,17,17,0.15); border-color:#881111;
-              box-shadow:0 0 8px rgba(255,30,30,0.2); }
-    50%     { background:rgba(255,20,20,0.35); border-color:#FF3333;
-              box-shadow:0 0 32px rgba(255,30,30,0.8); color:#FF6666; }
+  .msg-banner.yellow    { background:rgba(255,210,0,0.12);   color:#FFD200; border:2px solid #FFD200; }
+  .msg-banner.orange    { background:rgba(255,102,0,0.12);   color:#FF6600; border:2px solid #FF6600; }
+  .msg-banner.red       { background:rgba(204,17,17,0.15);   color:#FF3333; border:2px solid #CC1111; }
+  .msg-banner.red-blink { background:rgba(204,17,17,0.15);   color:#FF3333; border:2px solid #CC1111;
+                          animation:msgblink 1.4s ease-in-out infinite; }
+  @keyframes msgblink {
+    0%,100% { background:rgba(204,17,17,0.15); box-shadow:0 0 0px rgba(255,30,30,0); }
+    50%     { background:rgba(204,17,17,0.35); box-shadow:0 0 22px rgba(255,40,40,0.55); }
   }
   .fs-btn {
     position: fixed; bottom: 10px; right: 12px; z-index: 200;
@@ -320,7 +318,7 @@ function t(key) { return (LANG[lang] || LANG.pl)[key] || key; }
 
     // Admin message
     const mb = document.getElementById('msgBanner');
-    if(s.adminMessage){ mb.textContent=s.adminMessage; var mc = s.msgColor && s.msgColor.length ? s.msgColor : 'yellow'; mb.className='msg-banner show '+mc; }
+    if(s.adminMessage){ mb.textContent=s.adminMessage; mb.className='msg-banner show '+(s.msgColor||'yellow'); }
     else { mb.textContent=''; mb.className='msg-banner'; }
 
     // Sync rider inputs (only if not focused)
