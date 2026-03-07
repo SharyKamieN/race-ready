@@ -497,6 +497,12 @@ http.createServer(async (req, res) => {
   if (p === '/logout' && req.method === 'POST') {
     const token = getCookie(req, 'rr_session');
     if (token) sessions.delete(token);
+    // Wyłącz system przy wylogowaniu
+    state.systemActive  = false;
+    state.judgeReady    = false;
+    state.tvReady       = false;
+    state.goSignalGiven = false;
+    broadcast();
     res.writeHead(200, {
       'Set-Cookie': 'rr_session=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT',
       'Content-Type': 'application/json'
