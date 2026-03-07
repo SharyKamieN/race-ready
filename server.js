@@ -109,7 +109,6 @@ let state = {
 };
 
 let clients = [];
-restoreState();
 
 // ── AUTH ────────────────────────────────────────────────────────
 const sessions = new Map(); // token -> { login, lastActivity }
