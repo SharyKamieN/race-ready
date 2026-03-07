@@ -121,6 +121,48 @@
   .powered:hover { opacity: 0.5; }
   .powered span { font-size: 9px; font-weight: 700; letter-spacing: 0.2em;
                   text-transform: uppercase; color: #fff; white-space: nowrap; }
+
+  /* ── PROFILES & ADMINS ── */
+  .modal-bg {
+    display:none; position:fixed; inset:0; z-index:1000;
+    background:rgba(0,0,0,0.75); backdrop-filter:blur(4px);
+    align-items:center; justify-content:center;
+  }
+  .modal-bg.open { display:flex; }
+  .modal {
+    background:#13181F; border:1.5px solid #2A3040; border-radius:16px;
+    padding:28px; width:90%; max-width:480px; max-height:85vh; overflow-y:auto;
+  }
+  .modal h2 { color:#00C8FF; font-size:14px; letter-spacing:0.15em; margin:0 0 18px; }
+  .modal input {
+    width:100%; box-sizing:border-box; background:#0D1117; border:1.5px solid #2A3040;
+    border-radius:8px; color:#F0F4FF; padding:10px 12px; font-size:14px;
+    margin-bottom:10px; font-family:inherit; outline:none;
+  }
+  .modal input:focus { border-color:#00C8FF; }
+  .modal .row { display:flex; gap:8px; margin-bottom:10px; }
+  .modal .row input { margin-bottom:0; }
+  .profile-item, .admin-item {
+    display:flex; align-items:center; gap:10px; padding:10px 12px;
+    background:#0D1117; border:1px solid #2A3040; border-radius:8px; margin-bottom:8px;
+  }
+  .profile-item .pname, .admin-item .aname {
+    flex:1; font-size:13px; font-weight:700; color:#F0F4FF; letter-spacing:0.05em;
+  }
+  .profile-item .psub { font-size:10px; color:#7A8090; letter-spacing:0.08em; }
+  .admin-item .arole { font-size:10px; color:#FFD200; letter-spacing:0.08em; text-transform:uppercase; }
+  .btn-sm {
+    padding:6px 12px; border-radius:6px; font-size:11px; font-weight:700;
+    letter-spacing:0.08em; cursor:pointer; border:none; text-transform:uppercase;
+  }
+  .btn-load { background:#00C8FF; color:#000; }
+  .btn-del  { background:#CC1111; color:#fff; }
+  .btn-edit { background:#2A3040; color:#F0F4FF; }
+  .modal-footer { display:flex; gap:8px; margin-top:16px; }
+  .modal-footer button { flex:1; }
+  .modal-close { background:#2A3040; color:#F0F4FF; }
+  .msg-ok  { color:#00EE55; font-size:12px; margin-top:8px; display:none; }
+  .msg-err { color:#FF3333; font-size:12px; margin-top:8px; display:none; }
 </style>
 </head>
 <body>
@@ -165,6 +207,14 @@
         style="flex:1; min-width:120px; background:#1E2530; color:#00C8FF; border:1.5px solid #00C8FF;">
         🚩 Operator
       </button>
+      <button class="save-btn btn-edit" onclick="openModal('profilesModal')">
+        📋 Profile
+      </button>
+      <button class="save-btn btn-edit" onclick="openModal('adminsModal')">
+        👤 Admini
+      </button>
+    </div>
+    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:8px;">
       <button class="save-btn" onclick="openAll()"
         style="flex:1; min-width:120px; background:#00C8FF; color:#000;">
         ⚡ Otwórz wszystkie
@@ -563,10 +613,234 @@ function connect() {
   es.onerror   = function(){ cb.textContent='Offline'; cb.className='conn offline'; es.close(); setTimeout(connect, 3000); };
 }
 connect();
+
+// ── MODAL HELPERS ───────────────────────────────────────────────
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+  if (id === 'profilesModal') loadProfiles();
+  if (id === 'adminsModal')   loadAdmins();
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+document.querySelectorAll('.modal-bg').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+});
+
+// ── PROFILES ────────────────────────────────────────────────────
+let editingProfileId = null;
+
+async function loadProfiles() {
+  const r = await fetch('/api/profiles');
+  const d = await r.json();
+  const list = document.getElementById('profilesList');
+  if (!d.profiles || d.profiles.length === 0) {
+    list.innerHTML = '<p style="color:#7A8090;font-size:12px;margin-bottom:12px;">Brak zapisanych profili</p>';
+    return;
+  }
+  list.innerHTML = d.profiles.map(p => `
+    <div class="profile-item">
+      <div>
+        <div class="pname">${p.name}</div>
+        <div class="psub">${p.eventName || '—'} · ${p.language === 'pl' ? '🇵🇱' : '🇬🇧'} · ${p.riderMode} zaw.</div>
+      </div>
+      <button class="btn-sm btn-load" onclick="loadProfile('${p.id}')">▶ Wczytaj</button>
+      <button class="btn-sm btn-edit" onclick="editProfile('${p.id}')">✏</button>
+      <button class="btn-sm btn-del"  onclick="deleteProfile('${p.id}')">✕</button>
+    </div>
+  `).join('');
+}
+
+async function loadProfile(id) {
+  await fetch('/api/profiles/load', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id})});
+  closeModal('profilesModal');
+  showToast('✓ Profil wczytany');
+}
+
+function editProfile(id) {
+  fetch('/api/profiles').then(r=>r.json()).then(d => {
+    const p = d.profiles.find(x => x.id === id);
+    if (!p) return;
+    editingProfileId = p.id;
+    document.getElementById('pfName').value  = p.name;
+    document.getElementById('pfEvent').value = p.eventName || '';
+    document.getElementById('pfLang').value  = p.language  || 'pl';
+    document.getElementById('pfMode').value  = p.riderMode || 1;
+  });
+}
+
+async function saveProfile() {
+  const name = document.getElementById('pfName').value.trim();
+  if (!name) { showMsg('pfErr','Podaj nazwę profilu'); return; }
+  const payload = {
+    id:        editingProfileId || undefined,
+    name,
+    eventName: document.getElementById('pfEvent').value.trim(),
+    language:  document.getElementById('pfLang').value,
+    riderMode: parseInt(document.getElementById('pfMode').value),
+  };
+  const r = await fetch('/api/profiles/save', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)});
+  const d = await r.json();
+  if (d.ok) {
+    editingProfileId = null;
+    document.getElementById('pfName').value = '';
+    document.getElementById('pfEvent').value = '';
+    showMsg('pfOk',''); loadProfiles();
+  } else {
+    showMsg('pfErr', d.error || 'Błąd');
+  }
+}
+
+async function deleteProfile(id) {
+  if (!confirm('Usunąć ten profil?')) return;
+  await fetch('/api/profiles/delete', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id})});
+  loadProfiles();
+}
+
+// ── ADMINS ──────────────────────────────────────────────────────
+async function loadAdmins() {
+  const r = await fetch('/api/admins');
+  if (!r.ok) {
+    document.getElementById('adminsList').innerHTML = '';
+    document.getElementById('addAdminSection').style.display = 'none';
+    return;
+  }
+  const d = await r.json();
+  document.getElementById('addAdminSection').style.display = d.admins.length >= 2 ? 'none' : '';
+  document.getElementById('adminsList').innerHTML = d.admins.map(a => `
+    <div class="admin-item">
+      <div>
+        <div class="aname">${a.login}</div>
+        <div class="arole">${a.role === 'superadmin' ? '⭐ Superadmin' : 'Admin'}</div>
+      </div>
+      ${a.role !== 'superadmin' ? `<button class="btn-sm btn-del" onclick="deleteAdmin('${a.login}')">✕ Usuń</button>` : ''}
+    </div>
+  `).join('');
+}
+
+async function changePassword() {
+  const oldPassword = document.getElementById('cpOldPwd').value;
+  const newPassword = document.getElementById('cpNewPwd').value;
+  const newLogin    = document.getElementById('cpNewLogin').value.trim();
+  if (!oldPassword || !newPassword) { showMsg('cpErr','Wypełnij pola'); return; }
+  const r = await fetch('/api/admins/change-password', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({oldPassword, newPassword, newLogin: newLogin||undefined})
+  });
+  const d = await r.json();
+  if (d.ok) {
+    document.getElementById('cpOldPwd').value = '';
+    document.getElementById('cpNewPwd').value = '';
+    document.getElementById('cpNewLogin').value = '';
+    showMsg('cpOk','');
+  } else { showMsg('cpErr', d.error || 'Błąd'); }
+}
+
+async function addAdmin() {
+  const login    = document.getElementById('naLogin').value.trim();
+  const password = document.getElementById('naPwd').value;
+  if (!login || !password) { showMsg('naErr','Wypełnij pola'); return; }
+  const r = await fetch('/api/admins/add', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({login, password})
+  });
+  const d = await r.json();
+  if (d.ok) {
+    document.getElementById('naLogin').value = '';
+    document.getElementById('naPwd').value = '';
+    showMsg('naOk',''); loadAdmins();
+  } else { showMsg('naErr', d.error || 'Błąd'); }
+}
+
+async function deleteAdmin(login) {
+  if (!confirm('Usunąć admina ' + login + '?')) return;
+  await fetch('/api/admins/delete', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({login})});
+  loadAdmins();
+}
+
+function showMsg(id, txt) {
+  const el = document.getElementById(id);
+  if (txt !== '') el.textContent = txt;
+  el.style.display = 'block';
+  setTimeout(() => { el.style.display = 'none'; }, 3000);
+}
+
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.textContent = msg;
+  Object.assign(t.style, {
+    position:'fixed', bottom:'40px', left:'50%', transform:'translateX(-50%)',
+    background:'#00C8FF', color:'#000', padding:'10px 24px', borderRadius:'20px',
+    fontWeight:'700', fontSize:'13px', zIndex:'9999', letterSpacing:'0.1em'
+  });
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2500);
+}
+
 </script>
   <div class="powered">
     <span>Powered by LIVEMOTION</span>
   </div>
+
+
+<!-- PROFILES MODAL -->
+<div class="modal-bg" id="profilesModal">
+  <div class="modal">
+    <h2>📋 PROFILE WYDARZEŃ</h2>
+    <div id="profilesList"></div>
+    <div id="profileForm" style="margin-top:16px; border-top:1px solid #2A3040; padding-top:16px;">
+      <input id="pfName"  placeholder="Nazwa profilu (np. Garmin 2026)" />
+      <input id="pfEvent" placeholder="Nazwa wydarzenia" />
+      <div class="row">
+        <select id="pfLang" style="flex:1;background:#0D1117;border:1.5px solid #2A3040;border-radius:8px;color:#F0F4FF;padding:10px 12px;font-size:14px;font-family:inherit;">
+          <option value="pl">🇵🇱 Polski</option>
+          <option value="en">🇬🇧 English</option>
+        </select>
+        <select id="pfMode" style="flex:1;background:#0D1117;border:1.5px solid #2A3040;border-radius:8px;color:#F0F4FF;padding:10px 12px;font-size:14px;font-family:inherit;">
+          <option value="1">1 Zawodnik</option>
+          <option value="2">2 Zawodników</option>
+        </select>
+      </div>
+      <p class="msg-ok" id="pfOk">✓ Zapisano</p>
+      <p class="msg-err" id="pfErr"></p>
+    </div>
+    <div class="modal-footer">
+      <button class="save-btn btn-edit" onclick="saveProfile()">💾 Zapisz profil</button>
+      <button class="save-btn modal-close" onclick="closeModal('profilesModal')">✕ Zamknij</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADMINS MODAL -->
+<div class="modal-bg" id="adminsModal">
+  <div class="modal">
+    <h2>👤 ZARZĄDZANIE ADMINAMI</h2>
+    <div id="adminsList"></div>
+
+    <div style="border-top:1px solid #2A3040; padding-top:16px; margin-top:8px;">
+      <h2 style="margin-bottom:12px;">🔑 ZMIEŃ SWOJE DANE</h2>
+      <input id="cpOldPwd"  type="password" placeholder="Stare hasło" />
+      <input id="cpNewLogin" placeholder="Nowy login (opcjonalnie)" />
+      <input id="cpNewPwd"  type="password" placeholder="Nowe hasło (min. 4 znaki)" />
+      <p class="msg-ok" id="cpOk">✓ Zapisano</p>
+      <p class="msg-err" id="cpErr"></p>
+      <button class="save-btn" style="margin-top:4px;" onclick="changePassword()">💾 Zapisz zmiany</button>
+    </div>
+
+    <div id="addAdminSection" style="border-top:1px solid #2A3040; padding-top:16px; margin-top:16px;">
+      <h2 style="margin-bottom:12px;">➕ DODAJ DRUGIEGO ADMINA</h2>
+      <input id="naLogin"   placeholder="Login" />
+      <input id="naPwd" type="password" placeholder="Hasło" />
+      <p class="msg-ok" id="naOk">✓ Dodano admina</p>
+      <p class="msg-err" id="naErr"></p>
+      <button class="save-btn btn-edit" onclick="addAdmin()">➕ Dodaj admina</button>
+    </div>
+
+    <div class="modal-footer" style="margin-top:16px;">
+      <button class="save-btn modal-close" onclick="closeModal('adminsModal')">✕ Zamknij</button>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
