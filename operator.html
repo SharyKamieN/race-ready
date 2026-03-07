@@ -62,10 +62,10 @@
     .go-btn.fired  { background: #0BBB44; border-color: #00EE55; color: #fff; box-shadow: 0 0 80px rgba(11,187,68,.6); }
     @keyframes gp { from { box-shadow: 0 0 30px rgba(238,102,0,.5); transform: scale(1); } to { box-shadow: 0 0 90px rgba(238,102,0,.8); transform: scale(1.03); } }
 
-    .fired-banner { font-weight: 900; font-size: clamp(16px,3.5vw,28px); color: #00EE55; text-align: center; opacity: 0; transition: opacity .3s; text-shadow: 0 0 40px rgba(0,238,85,.6); min-height: 36px; }
+    .fired-banner { font-weight: 900; font-size: clamp(16px,3.5vw,28px); color: var(--accent); text-align: center; opacity: 0; transition: opacity .3s; text-shadow: 0 0 40px rgba(0,238,85,.6); min-height: 36px; }
     .fired-banner.show { opacity: 1; }
 
-    .cd  { font-family: "Courier New",monospace; font-weight: 700; font-size: 16px; color: #FFD200; min-height: 22px; text-align: center; }
+    .cd  { font-family: "Courier New",monospace; font-weight: 700; font-size: 16px; color: var(--accent); min-height: 22px; text-align: center; }
     .rst { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); cursor: pointer; padding: 7px 16px; border: 1.5px solid var(--border); border-radius: 6px; background: transparent; font-family: Arial,sans-serif; }
 
     /* msg banner */
@@ -172,7 +172,7 @@
   <div class="run-badge" id="runBadge" style="display:none">Run <span id="runTxt">—</span></div>
 
   <!-- Riders -->
-  <div class="riders-section">
+  <div class="riders-section" id="ridersSection">
     <div class="riders-grid mode1" id="ridersGrid">
       <!-- current -->
       <div class="rider-box">
@@ -364,6 +364,10 @@ function t(key) { return (LANG[lang] || LANG.pl)[key] || key; }
     const mb = document.getElementById('msgBanner');
     if(s.adminMessage){ mb.textContent=s.adminMessage; mb.className='msg-banner show '+(s.msgColor||'yellow'); }
     else { mb.textContent=''; mb.className='msg-banner'; }
+
+    // Show/hide entire riders section
+    var ridersSection = document.getElementById('ridersSection');
+    if (ridersSection) ridersSection.style.display = (s.showRiders === false) ? 'none' : '';
 
     // Sync rider inputs (only if not focused)
     const fields = [{id:'cur1',val:s.currentRider1},{id:'cur2',val:s.currentRider2},{id:'next1',val:s.nextRider1},{id:'next2',val:s.nextRider2}];
