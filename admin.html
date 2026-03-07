@@ -14,7 +14,7 @@
     .conn.online  { background: rgba(11,187,68,0.18); color: #00EE55; border: 1px solid #00EE55; }
     .conn.offline { background: rgba(220,30,30,0.18); color: #FF4444; border: 1px solid #FF4444; }
 
-    .page { max-width: 960px; margin: 0 auto; padding: 28px 20px 60px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .page { max-width: 960px; margin: 0 auto; padding: 28px 20px 60px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
     .card { background: #111418; border: 1.5px solid #1E2530; border-radius: 12px; padding: 22px 24px; display: flex; flex-direction: column; gap: 16px; }
     .card.full { grid-column: 1 / -1; }
     .card-title { font-family: "Arial Black", Arial, sans-serif; font-weight: 900; font-size: 13px; letter-spacing: 0.2em; text-transform: uppercase; color: #00C8FF; border-bottom: 1px solid #1E2530; padding-bottom: 12px; }
@@ -174,6 +174,7 @@
   .accent-dot:hover { transform:scale(1.15); }
   .accent-dot.active { border-color:#fff; box-shadow:0 0 10px rgba(255,255,255,0.4); }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
 </head>
 <body>
 <header>
@@ -218,15 +219,15 @@
         <div style="font-size:10px;color:#7A8090;letter-spacing:0.1em;margin-bottom:8px;">QR KODY DO PANELI</div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
           <div style="text-align:center;">
-            <canvas id="qrJudge" width="80" height="80"></canvas>
+            <canvas id="qrJudge" width="90" height="90"></canvas>
             <div style="font-size:9px;color:#7A8090;margin-top:3px;letter-spacing:0.08em;">JUDGE</div>
           </div>
           <div style="text-align:center;">
-            <canvas id="qrTv" width="80" height="80"></canvas>
+            <canvas id="qrTv" width="90" height="90"></canvas>
             <div style="font-size:9px;color:#7A8090;margin-top:3px;letter-spacing:0.08em;">TV</div>
           </div>
           <div style="text-align:center;">
-            <canvas id="qrOperator" width="80" height="80"></canvas>
+            <canvas id="qrOperator" width="90" height="90"></canvas>
             <div style="font-size:9px;color:#7A8090;margin-top:3px;letter-spacing:0.08em;">OPERATOR</div>
           </div>
         </div>
@@ -266,24 +267,30 @@
   </div>
 
   <!-- ── EVENT INFO ── -->
-  <div class="card">
+  <div class="card full" style="align-self:start;">
     <div class="card-title">⚙ Ustawienia eventu</div>
-    <label>Nazwa zawodów<input type="text" id="eventName" placeholder="Nazwa wydarzenia"></label>
-    <label>Logo eventu (PNG/JPG)
-      <div class="logo-drop" id="logoDrop" onclick="document.getElementById('logoFile').click()">
-        <span id="logoPlaceholder">Kliknij aby wybrać logo</span>
-        <img id="logoPreview" style="display:none">
+    <div style="display:flex;gap:12px;align-items:flex-start;">
+      <div style="flex:1;">
+        <label style="margin-bottom:8px;display:block;">Nazwa zawodów<input type="text" id="eventName" placeholder="Nazwa wydarzenia"></label>
+        <div style="display:flex;gap:8px;margin-top:4px;">
+          <button class="save-btn" onclick="saveEventInfo()" style="flex:1;padding:10px;">Zapisz i wyślij</button>
+          <button class="reset-btn" onclick="removeLogo()" style="font-size:11px;padding:10px 12px;">✕ Logo</button>
+        </div>
       </div>
-      <input type="file" id="logoFile" accept="image/*" style="display:none">
-    </label>
-    <div class="row">
-      <button class="save-btn" onclick="saveEventInfo()">Zapisz i wyślij</button>
-      <button class="reset-btn" onclick="removeLogo()" style="font-size:12px;padding:10px 14px;">✕ Usuń logo</button>
+      <div style="flex-shrink:0;">
+        <div style="font-size:10px;color:#7A8090;letter-spacing:0.1em;margin-bottom:6px;">LOGO</div>
+        <div class="logo-drop" id="logoDrop" onclick="document.getElementById('logoFile').click()"
+          style="width:80px;height:80px;padding:8px;display:flex;align-items:center;justify-content:center;border-radius:8px;">
+          <span id="logoPlaceholder" style="font-size:10px;line-height:1.3;text-align:center;">Kliknij<br>aby wybrać</span>
+          <img id="logoPreview" style="display:none;max-width:64px;max-height:64px;object-fit:contain;">
+        </div>
+        <input type="file" id="logoFile" accept="image/*" style="display:none">
+      </div>
     </div>
   </div>
 
   <!-- ── RIDER MODE ── -->
-  <div class="card">
+  <div class="card full">
     <div class="card-title">👤 Tryb zawodników</div>
     <label>Ilu zawodników startuje naraz?</label>
     <div class="toggle-row">
@@ -450,26 +457,44 @@ updateStatus();
 
 // ── QR CODES ────────────────────────────────────────────────────
 // Minimal QR using Google Charts API (no external lib needed)
-function drawQR(canvasId, path) {
-  var canvas = document.getElementById(canvasId);
+// ── QR CODE GENERATOR (pure JS, no external API) ──────────────
+// Minimal QR v1 (21x21) for short URLs using data URI approach
+// We use a lightweight approach: encode URL as text in a canvas grid
+
+function makeQR(canvasId, path) {
   var url = window.location.origin + path;
-  var img = new Image();
-  var size = 80;
-  img.onload = function() {
+  var canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  
+  // Use QRious library loaded inline via data approach
+  // Fallback: show URL as text link if QR fails
+  try {
+    var qr = new QRious({
+      element: canvas,
+      value: url,
+      size: 90,
+      background: '#111418',
+      foreground: '#00C8FF',
+      level: 'M'
+    });
+  } catch(e) {
+    // QRious not available — show text
     var ctx = canvas.getContext('2d');
-    ctx.drawImage(img, 0, 0, size, size);
-  };
-  img.src = 'https://api.qrserver.com/v1/create-qr-code/?size='+size+'x'+size+'&data='+encodeURIComponent(url)+'&bgcolor=111418&color=00C8FF&qzone=1';
+    ctx.fillStyle = '#111418';
+    ctx.fillRect(0,0,90,90);
+    ctx.fillStyle = '#00C8FF';
+    ctx.font = '8px monospace';
+    ctx.fillText(path, 5, 45);
+  }
 }
 
 function initQR() {
-  drawQR('qrJudge',    '/judge');
-  drawQR('qrTv',       '/tv');
-  drawQR('qrOperator', '/operator');
+  makeQR('qrJudge',    '/judge');
+  makeQR('qrTv',       '/tv');
+  makeQR('qrOperator', '/operator');
 }
 
-// Init QR after page loads
-setTimeout(initQR, 500);
+setTimeout(initQR, 300);
 
 // ── LOGOUT ────────────────────────────────────────────────────
 function doLogout() {
