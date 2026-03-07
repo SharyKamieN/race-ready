@@ -163,6 +163,16 @@
   .modal-close { background:#2A3040; color:#F0F4FF; }
   .msg-ok  { color:#00EE55; font-size:12px; margin-top:8px; display:none; }
   .msg-err { color:#FF3333; font-size:12px; margin-top:8px; display:none; }
+  :root { --accent: #00C8FF; --border: #2A3040; }
+  body.light { background: #D8E4F0; color: #080C18; }
+  body.light .card { background: #EDF2FA; border-color: #B0BDD0; }
+  body.light input, body.light select { background: #fff; border-color: #B0BDD0; color: #080C18; }
+  .accent-dot {
+    width:32px; height:32px; border-radius:50%; cursor:pointer;
+    border:3px solid transparent; transition:all 0.2s; flex-shrink:0;
+  }
+  .accent-dot:hover { transform:scale(1.15); }
+  .accent-dot.active { border-color:#fff; box-shadow:0 0 10px rgba(255,255,255,0.4); }
 </style>
 </head>
 <body>
@@ -266,6 +276,27 @@
         <button class="toggle-btn"        id="langEN" onclick="setLanguage('en')">🇬🇧 English</button>
       </div>
     </div>
+
+      <!-- Theme + Accent -->
+      <div class="slider-row" style="margin-top:14px;">
+        <span class="slider-label">☀ Tryb jasny (outdoor)</span>
+        <div class="slider" id="themeSlider" onclick="toggleTheme()"><div class="slider-knob off" id="themeKnob"></div></div>
+      </div>
+      <div style="margin-top:12px;">
+        <div style="font-size:10px;letter-spacing:0.12em;color:#7A8090;margin-bottom:8px;">🎨 KOLOR AKCENTU PANELI</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+          <div class="accent-dot" data-color="#00C8FF" style="background:#00C8FF" onclick="setAccent('#00C8FF')" title="Cyan"></div>
+          <div class="accent-dot" data-color="#FF6600" style="background:#FF6600" onclick="setAccent('#FF6600')" title="Pomarańczowy"></div>
+          <div class="accent-dot" data-color="#FFD200" style="background:#FFD200" onclick="setAccent('#FFD200')" title="Złoty"></div>
+          <div class="accent-dot" data-color="#00EE55" style="background:#00EE55" onclick="setAccent('#00EE55')" title="Zielony"></div>
+          <div class="accent-dot" data-color="#FF2266" style="background:#FF2266" onclick="setAccent('#FF2266')" title="Różowy"></div>
+          <div class="accent-dot" data-color="#AA44FF" style="background:#AA44FF" onclick="setAccent('#AA44FF')" title="Fioletowy"></div>
+          <div class="accent-dot" data-color="#FFFFFF" style="background:#FFFFFF" onclick="setAccent('#FFFFFF')" title="Biały"></div>
+          <input type="color" id="accentCustom" value="#00C8FF"
+            style="width:32px;height:32px;border-radius:50%;border:2px solid #2A3040;cursor:pointer;padding:2px;background:transparent;"
+            oninput="setAccent(this.value)" title="Własny kolor">
+        </div>
+      </div>
     <button class="save-btn" onclick="saveRunSettings()">Zapisz rundy</button>
   </div>
 
@@ -402,6 +433,33 @@ function applyPower(val) {
   }
 }
 
+
+// ── THEME & ACCENT ───────────────────────────────────────────
+var currentTheme  = 'dark';
+var currentAccent = '#00C8FF';
+
+function toggleTheme() {
+  currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  var sl = document.getElementById('themeSlider');
+  var kn = document.getElementById('themeKnob');
+  var isLight = currentTheme === 'light';
+  sl.className = isLight ? 'slider on' : 'slider';
+  kn.className = isLight ? 'slider-knob on' : 'slider-knob off';
+  fetch('/api/admin', {method:'POST', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({theme: currentTheme})}).catch(function(){});
+}
+
+function setAccent(color) {
+  currentAccent = color;
+  document.getElementById('accentCustom').value = color;
+  document.documentElement.style.setProperty('--accent', color);
+  document.querySelectorAll('.accent-dot').forEach(function(d){
+    d.classList.toggle('active', d.style.background === color);
+  });
+  fetch('/api/admin', {method:'POST', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({accentColor: color})}).catch(function(){});
+}
+
 // ── SHOW RUN TOGGLE ───────────────────────────────────────────
 function toggleShowRun() {
   var sl = document.getElementById('runSlider');
@@ -526,6 +584,20 @@ function applyState(s) {
   if (s.systemActive !== undefined && s.systemActive !== systemActive) applyPower(s.systemActive);
 
   // Timer
+  if (s.theme !== undefined) {
+    currentTheme = s.theme;
+    var isLight = s.theme === 'light';
+    document.getElementById('themeSlider').className = isLight ? 'slider on' : 'slider';
+    document.getElementById('themeKnob').className   = isLight ? 'slider-knob on' : 'slider-knob off';
+  }
+  if (s.accentColor !== undefined && s.accentColor !== currentAccent) {
+    currentAccent = s.accentColor;
+    document.getElementById('accentCustom').value = s.accentColor;
+    document.documentElement.style.setProperty('--accent', s.accentColor);
+    document.querySelectorAll('.accent-dot').forEach(function(d){
+      d.classList.toggle('active', d.style.background === s.accentColor);
+    });
+  }
   if (s.showRun !== undefined) {
     document.getElementById('runSlider').className = s.showRun ? 'slider on' : 'slider';
     document.getElementById('runKnob').className   = s.showRun ? 'slider-knob on' : 'slider-knob off';
@@ -678,6 +750,8 @@ async function saveProfile() {
     eventName: document.getElementById('pfEvent').value.trim(),
     language:  document.getElementById('pfLang').value,
     riderMode: parseInt(document.getElementById('pfMode').value),
+    theme:      currentTheme,
+    accentColor:currentAccent,
   };
   const r = await fetch('/api/profiles/save', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)});
   const d = await r.json();
