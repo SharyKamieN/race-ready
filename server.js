@@ -409,6 +409,28 @@ http.createServer(async (req, res) => {
     broadcast(); json(res,200,{ok:true}); return;
   }
 
+
+  // ── FULL RESET ───────────────────────────────────────────────
+  if (p === '/api/fullreset' && req.method === 'POST') {
+    if (state._autoReset) clearTimeout(state._autoReset);
+    state.judgeReady    = false;
+    state.tvReady       = false;
+    state.goSignalGiven = false;
+    state.currentRider1 = '';
+    state.currentRider2 = '';
+    state.nextRider1    = '';
+    state.nextRider2    = '';
+    state.runCurrent    = 1;
+    state.timerRunning  = false;
+    state.timerStart    = null;
+    state.timerElapsed  = 0;
+    state.adminMessage  = '';
+    state.msgColor      = '';
+    state.history       = [];
+    broadcast();
+    json(res, 200, {ok: true}); return;
+  }
+
   if (p==='/api/history/clear' && req.method==='POST') {
     state.history = []; broadcast(); json(res,200,{ok:true}); return;
   }
@@ -711,6 +733,7 @@ http.createServer(async (req, res) => {
 
   // ── STATIC FILES ─────────────────────────────────────────────
   let file = p==='/' ? '/index.html' : p;
+  if(p==='/info')     file='/info.html';
   if(p==='/judge')    file='/judge.html';
   if(p==='/tv')       file='/tv.html';
   if(p==='/operator') file='/operator.html';
