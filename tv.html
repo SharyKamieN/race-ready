@@ -200,8 +200,13 @@
 
   // ── THEME + ACCENT ─────────────────────────────────────────
   function applyTheme(theme, accent) {
-    if (theme === 'light') document.body.classList.add('light');
-    else document.body.classList.remove('light');
+    if (theme === 'light') {
+      document.body.classList.add('light');
+      document.documentElement.style.backgroundColor = '#D8E4F0';
+    } else {
+      document.body.classList.remove('light');
+      document.documentElement.style.backgroundColor = '#0A0C0F';
+    }
     if (accent) document.documentElement.style.setProperty('--accent', accent);
   }
 
