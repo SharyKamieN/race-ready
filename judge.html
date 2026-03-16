@@ -87,6 +87,7 @@
   .powered span { font-size: 9px; font-weight: 700; letter-spacing: 0.2em;
                   text-transform: uppercase; color: #fff; white-space: nowrap; }
   /* ── CSS VARIABLES ── */
+  html { background: #0A0C0F; }
   :root {
     --bg:      #0A0C0F;
     --bg2:     #111418;
@@ -98,8 +99,9 @@
     --green:   #00EE55;
     --red:     #CC1111;
   }
+  body.light { --bg: #D8E4F0; }
+  html:has(body.light) { background: #D8E4F0; }
   body.light {
-    --bg:      #D8E4F0;
     --bg2:     #EDF2FA;
     --bg3:     #FFFFFF;
     --border:  #B0BDD0;
@@ -108,7 +110,7 @@
     --green:   #0AAA44;
     --red:     #CC1111;
   }
-  body { background: var(--bg); color: var(--text); transition: background 0.3s, color 0.3s; }
+  body { background: transparent; color: var(--text); transition: color 0.3s; }
 
 30%  { transform: scale(1.0); opacity: 1; }
     80%  { transform: scale(1.0); opacity: 1; }
@@ -128,37 +130,40 @@
     0%   { opacity:1; }
     100% { opacity:0; }
   }
+50%  { transform: translate(-3%, 2%) scale(1.10); opacity: 1.0; }
+    100% { transform: translate(2%, -3%) scale(0.95); opacity: 0.8; }
+  }
   /* ── ANIMATED BACKGROUND ── */
   html { background: #0A0C0F; }
   body { background: transparent !important; }
   body::before {
     content: '';
-    position: fixed; inset: 0; z-index: -1;
+    position: fixed; inset: -20%; z-index: -1;
     background:
-      radial-gradient(ellipse 90% 70% at 15% 15%, rgba(0,200,255,0.22) 0%, transparent 60%),
-      radial-gradient(ellipse 70% 60% at 85% 85%, rgba(0,120,220,0.18) 0%, transparent 55%),
-      radial-gradient(ellipse 60% 50% at 85% 10%, rgba(160,0,255,0.14) 0%, transparent 50%),
-      radial-gradient(ellipse 50% 70% at 10% 90%, rgba(204,17,17,0.14) 0%, transparent 55%);
+      radial-gradient(ellipse 70% 60% at 20% 20%, rgba(0,200,255,0.28) 0%, transparent 55%),
+      radial-gradient(ellipse 60% 55% at 80% 80%, rgba(0,120,220,0.22) 0%, transparent 50%),
+      radial-gradient(ellipse 55% 45% at 80% 10%, rgba(160,0,255,0.18) 0%, transparent 45%),
+      radial-gradient(ellipse 50% 60% at 10% 85%, rgba(180,0,30,0.18)  0%, transparent 50%);
     animation: bgmove 12s ease-in-out infinite alternate;
   }
   body::after {
     content: '';
-    position: fixed; inset: 0; z-index: -1;
+    position: fixed; inset: -20%; z-index: -1;
     background:
-      radial-gradient(ellipse 80% 60% at 55% 45%, rgba(0,200,255,0.10) 0%, transparent 60%),
-      radial-gradient(ellipse 60% 70% at 25% 65%, rgba(0,80,200,0.10) 0%, transparent 50%);
+      radial-gradient(ellipse 70% 55% at 55% 45%, rgba(0,180,255,0.12) 0%, transparent 55%),
+      radial-gradient(ellipse 55% 65% at 25% 65%, rgba(0,60,200,0.12)  0%, transparent 50%);
     animation: bgmove2 18s ease-in-out infinite alternate;
   }
   @keyframes bgmove {
-    0%   { transform: translate(0%,    0%   ) scale(1.0); }
-    33%  { transform: translate(3%,    2%   ) scale(1.05); }
-    66%  { transform: translate(-2%,   3%   ) scale(0.97); }
-    100% { transform: translate(2%,   -2%   ) scale(1.03); }
+    0%   { transform: translate(0%,   0%  ); }
+    33%  { transform: translate(4%,   3%  ); }
+    66%  { transform: translate(-3%,  4%  ); }
+    100% { transform: translate(3%,  -3%  ); }
   }
   @keyframes bgmove2 {
-    0%   { transform: translate(0%,  0%) scale(1.0);  opacity: 0.7; }
-    50%  { transform: translate(-3%, 2%) scale(1.10); opacity: 1.0; }
-    100% { transform: translate(2%, -3%) scale(0.95); opacity: 0.8; }
+    0%   { transform: translate(0%,  0% ); opacity: 0.7; }
+    50%  { transform: translate(-4%, 3% ); opacity: 1.0; }
+    100% { transform: translate(3%, -4% ); opacity: 0.8; }
   }
 </style>
 </head>
