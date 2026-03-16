@@ -109,6 +109,57 @@
     --red:     #CC1111;
   }
   body { background: var(--bg); color: var(--text); transition: background 0.3s, color 0.3s; }
+
+  .go-countdown {
+    display: none; position: fixed; inset: 0; z-index: 800;
+    align-items: center; justify-content: center;
+    background: rgba(0,0,0,0.7); flex-direction: column;
+  }
+  .go-countdown.show { display: flex; }
+  .go-count-num {
+    font-family: "Arial Black", Arial, sans-serif; font-weight: 900;
+    font-size: clamp(120px, 30vw, 200px); color: var(--accent);
+    text-shadow: 0 0 60px var(--accent), 0 0 120px var(--accent);
+    animation: countpop 0.8s ease-out forwards;
+    line-height: 1;
+  }
+  .go-count-num.go-text {
+    font-size: clamp(60px, 15vw, 100px); color: #00EE55;
+    text-shadow: 0 0 60px #00EE55, 0 0 120px #00EE55;
+  }
+  @keyframes countpop {
+    0%   { transform: scale(1.8); opacity: 0; }
+    30%  { transform: scale(1.0); opacity: 1; }
+    80%  { transform: scale(1.0); opacity: 1; }
+    100% { transform: scale(0.7); opacity: 0; }
+  }
+
+  /* ── ANIMATED BACKGROUND ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: -1;
+    background:
+      linear-gradient(rgba(0,200,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,200,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    animation: bgshift 20s linear infinite;
+  }
+  body::after {
+    content: '';
+    position: fixed; inset: 0; z-index: -1;
+    background: radial-gradient(ellipse at 50% 0%, rgba(0,200,255,0.06) 0%, transparent 60%),
+                radial-gradient(ellipse at 100% 100%, rgba(204,17,17,0.04) 0%, transparent 50%);
+  }
+  body.light::before {
+    background:
+      linear-gradient(rgba(0,100,200,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,100,200,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+  @keyframes bgshift {
+    0%   { background-position: 0 0, 0 0; }
+    100% { background-position: 40px 40px, 40px 40px; }
+  }
 </style>
 </head>
 <body>
@@ -215,12 +266,53 @@ var LANG = {
 var lang = 'pl';
 function t(key) { return (LANG[lang] || LANG.pl)[key] || key; }
 
+
+  // ── GO COUNTDOWN ─────────────────────────────────────────
+  var countdownActive = false;
+  var prevGoSignal = false;
+
+  function runGoCountdown() {
+    if (countdownActive) return;
+    countdownActive = true;
+    var el = document.getElementById('goCountdown');
+    var num = document.getElementById('goCountNum');
+    var steps = ['3','2','1','GO!'];
+    var i = 0;
+    el.classList.add('show');
+    function step() {
+      if (i >= steps.length) {
+        el.classList.remove('show');
+        countdownActive = false;
+        return;
+      }
+      num.textContent = steps[i];
+      num.className = steps[i] === 'GO!' ? 'go-count-num go-text' : 'go-count-num';
+      // Re-trigger animation
+      num.style.animation = 'none';
+      void num.offsetWidth;
+      num.style.animation = '';
+      i++;
+      setTimeout(step, 850);
+    }
+    step();
+  }
+
   let rAt=null, cdi=null, timerInterval=null;
   function tap(){
     if(tap.busy) return; tap.busy=true; setTimeout(()=>tap.busy=false, 600);
     fetch('/api/judge',{method:'POST'}).catch(()=>{});
   }
   tap.busy=false;
+
+  // ── SPACEBAR SHORTCUT ────────────────────────────────────
+  document.addEventListener('keydown', function(e) {
+    if (e.code === 'Space' && e.target === document.body) {
+      e.preventDefault();
+      tap();
+    }
+  });
+
+
   function formatT(ms){ const s=Math.floor(ms/1000); return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')+'.'+Math.floor((ms%1000)/100); }
 
   var lastState = {};
@@ -230,7 +322,8 @@ function t(key) { return (LANG[lang] || LANG.pl)[key] || key; }
     ov.style.display = s.systemActive ? 'none' : 'flex';
     if(s.language !== undefined && s.language !== lang){ lang=s.language; }
     if(s.theme !== undefined || s.accentColor !== undefined) applyTheme(s.theme, s.accentColor);
-    if(s.eventName) document.getElementById('evName').textContent=s.eventName;
+    if(s.eventName !== undefined) document.getElementById('evName').textContent=s.eventName||'';
+    if(s.appName) document.title = s.appName + ' — ' + document.querySelector('.role').textContent.replace(/^[^ ]+ /,'');
     const logo=document.getElementById('logoImg');
     if(s.logoBase64){logo.src=s.logoBase64;logo.style.display='block';}else{logo.style.display='none';}
 
@@ -266,7 +359,8 @@ function t(key) { return (LANG[lang] || LANG.pl)[key] || key; }
     const mb=document.getElementById('msgBox');
     if(s.adminMessage){mb.textContent=s.adminMessage;mb.className='msg show '+(s.msgColor||'yellow');}else{mb.textContent='';mb.className='msg';}
 
-    if(s.goSignalGiven){const f=document.getElementById('flash');f.classList.remove('go');void f.offsetWidth;f.classList.add('go');}
+    if(s.goSignalGiven && !prevGoSignal){ runGoCountdown(); }
+    prevGoSignal = s.goSignalGiven;
     const cd=document.getElementById('cd');
     if(s.judgeReady&&s.tvReady&&!s.goSignalGiven){if(!rAt){rAt=Date.now();startCD();}}
     else{rAt=null;clearInterval(cdi);cdi=null;cd.textContent='';}
@@ -324,5 +418,8 @@ function t(key) { return (LANG[lang] || LANG.pl)[key] || key; }
     <span>Powered by LIVEMOTION</span>
   </div>
 
+  <div class="go-countdown" id="goCountdown">
+    <div class="go-count-num" id="goCountNum">3</div>
+  </div>
 </body>
 </html>
