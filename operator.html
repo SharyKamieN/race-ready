@@ -179,6 +179,14 @@
   }
 </style>
 <!-- v1772868914 -->
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest-operator.json">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="RR Operator">
+  <meta name="theme-color" content="#0A0C0F">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' rx='30' fill='%230A0C0F'/><text y='130' x='15' font-size='120'>🏁</text></svg>">
 </head>
 <body>
 <header>
@@ -540,5 +548,15 @@ function t(key) { return (LANG[lang] || LANG.pl)[key] || key; }
     <span>Powered by LIVEMOTION</span>
   </div>
 
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/sw.js')
+          .then(function(reg) { console.log('SW registered'); })
+          .catch(function(err) { console.log('SW error:', err); });
+      });
+    }
+  </script>
 </body>
 </html>
