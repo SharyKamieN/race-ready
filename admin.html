@@ -6,6 +6,8 @@
   <title>ADMIN — Race Ready</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { background-color: #0A0C0F !important; }
+    body { background: transparent !important; }
     html, body { min-height: 100%; color: #F0F4FF; font-family: Arial, Helvetica, sans-serif; font-size: 15px; }
     header { background: rgba(17,20,24,0.92); border-bottom: 2px solid #1E2530; padding: 14px 28px; display: flex; align-items: center; justify-content: space-between; gap: 12px; position: sticky; top: 0; z-index: 100; }
     .hlogo { font-family: "Arial Black", Arial, sans-serif; font-weight: 900; font-size: 20px; letter-spacing: 0.08em; color: #00C8FF; }
@@ -179,37 +181,38 @@
 50%  { transform: translate(-3%, 2%) scale(1.10); opacity: 1.0; }
     100% { transform: translate(2%, -3%) scale(0.95); opacity: 0.8; }
   }
+50%  { transform: translate(-4%, 3% ); opacity: 1.0; }
+    100% { transform: translate(3%, -4% ); opacity: 0.8; }
+  }
+
   /* ── ANIMATED BACKGROUND ── */
-  html { background: #0A0C0F; }
-  body { background: transparent !important; }
   body::before {
     content: '';
-    position: fixed; inset: -20%; z-index: -1;
+    position: fixed; inset: -30%; z-index: -1;
     background:
-      radial-gradient(ellipse 70% 60% at 20% 20%, rgba(0,200,255,0.28) 0%, transparent 55%),
-      radial-gradient(ellipse 60% 55% at 80% 80%, rgba(0,120,220,0.22) 0%, transparent 50%),
-      radial-gradient(ellipse 55% 45% at 80% 10%, rgba(160,0,255,0.18) 0%, transparent 45%),
-      radial-gradient(ellipse 50% 60% at 10% 85%, rgba(180,0,30,0.18)  0%, transparent 50%);
-    animation: bgmove 12s ease-in-out infinite alternate;
+      radial-gradient(ellipse 60% 50% at 15% 20%, rgba(0,180,255,0.10) 0%, transparent 50%),
+      radial-gradient(ellipse 55% 50% at 85% 80%, rgba(0,80,200,0.08) 0%, transparent 50%),
+      radial-gradient(ellipse 50% 40% at 80% 10%, rgba(120,0,200,0.07) 0%, transparent 45%),
+      radial-gradient(ellipse 45% 55% at 10% 85%, rgba(160,0,20,0.07) 0%, transparent 50%);
+    animation: bgmove 14s ease-in-out infinite alternate;
   }
   body::after {
     content: '';
-    position: fixed; inset: -20%; z-index: -1;
+    position: fixed; inset: -30%; z-index: -1;
     background:
-      radial-gradient(ellipse 70% 55% at 55% 45%, rgba(0,180,255,0.12) 0%, transparent 55%),
-      radial-gradient(ellipse 55% 65% at 25% 65%, rgba(0,60,200,0.12)  0%, transparent 50%);
-    animation: bgmove2 18s ease-in-out infinite alternate;
+      radial-gradient(ellipse 60% 50% at 55% 45%, rgba(0,150,255,0.06) 0%, transparent 55%),
+      radial-gradient(ellipse 50% 60% at 25% 65%, rgba(0,50,180,0.05) 0%, transparent 50%);
+    animation: bgmove2 20s ease-in-out infinite alternate;
   }
   @keyframes bgmove {
-    0%   { transform: translate(0%,   0%  ); }
-    33%  { transform: translate(4%,   3%  ); }
-    66%  { transform: translate(-3%,  4%  ); }
-    100% { transform: translate(3%,  -3%  ); }
+    0%   { transform: translate(0%,  0% ); }
+    50%  { transform: translate(5%,  4% ); }
+    100% { transform: translate(-4%, 5% ); }
   }
   @keyframes bgmove2 {
-    0%   { transform: translate(0%,  0% ); opacity: 0.7; }
-    50%  { transform: translate(-4%, 3% ); opacity: 1.0; }
-    100% { transform: translate(3%, -4% ); opacity: 0.8; }
+    0%   { transform: translate(0%,  0% ); opacity: 0.8; }
+    50%  { transform: translate(-5%, 4% ); opacity: 1.0; }
+    100% { transform: translate(4%, -5% ); opacity: 0.7; }
   }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
