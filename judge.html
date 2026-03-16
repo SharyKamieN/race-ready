@@ -120,15 +120,18 @@
     100% { opacity: 0.7; transform: scale(0.95); }
   }
   #flash {
-    display:none; position:fixed; inset:0; z-index:10000; pointer-events:none;
-    background:rgba(11,187,68,0.5);
+    position:fixed; inset:0; z-index:10000; pointer-events:none;
+    background:rgba(11,187,68,0.55);
+    opacity:0; visibility:hidden;
+    transition: none;
   }
   #flash.go {
-    display:block; animation: flashgo 0.7s ease-out forwards;
+    animation: flashgo 0.8s ease-out forwards;
+    visibility:visible;
   }
   @keyframes flashgo {
-    0%   { opacity:1; }
-    100% { opacity:0; }
+    0%   { opacity:0.9; }
+    100% { opacity:0;   }
   }
 50%  { transform: translate(-3%, 2%) scale(1.10); opacity: 1.0; }
     100% { transform: translate(2%, -3%) scale(0.95); opacity: 0.8; }
@@ -212,7 +215,7 @@
   <div class="tvs"><span class="dot red" id="tvDot"></span><span id="tvTxt">TV / REŻYSER: NIE GOTOWY</span></div>
   <div class="cd" id="cd"></div>
 </main>
-<div class="flash" id="flash" style="background:rgba(11,187,68,.35)"></div>
+<div id="flash"></div>
 <script>
 
 
