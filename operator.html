@@ -338,7 +338,7 @@ var LANG = {
 var lang = 'pl';
 function t(key) { return (LANG[lang] || LANG.pl)[key] || key; }
 
-  let rAt=null, cdi=null, canGo=false, riderMode=1, timerInterval=null;
+  let rAt=null, cdi=null, canGo=false, riderMode=1, timerInterval=null, prevGo=false;
   function formatT(ms){ const s=Math.floor(ms/1000); return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')+'.'+Math.floor((ms%1000)/100); }
   let saveCooldown = null;
 
@@ -468,7 +468,7 @@ function t(key) { return (LANG[lang] || LANG.pl)[key] || key; }
   function connect(){
     const cb=document.getElementById('cb');
     const es=new EventSource('/events');
-    es.onopen=()=>{cb.textContent='Online';cb.className='conn online';};
+    es.onopen=()=>{cb.textContent='Online';cb.className='conn online'; fetch('/api/state').then(r=>r.json()).then(apply).catch(()=>{}); };
     es.onmessage=e=>apply(JSON.parse(e.data));
     es.onerror=()=>{cb.textContent='Offline';cb.className='conn offline';es.close();setTimeout(connect,3000);};
   }
