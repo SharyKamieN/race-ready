@@ -143,26 +143,28 @@
     content: '';
     position: fixed; inset: 0; z-index: -1;
     background:
-      linear-gradient(rgba(0,200,255,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,200,255,0.03) 1px, transparent 1px);
-    background-size: 40px 40px;
-    animation: bgshift 20s linear infinite;
+      linear-gradient(rgba(0,200,255,0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,200,255,0.07) 1px, transparent 1px);
+    background-size: 44px 44px;
+    animation: bgshift 15s linear infinite;
   }
   body::after {
     content: '';
     position: fixed; inset: 0; z-index: -1;
-    background: radial-gradient(ellipse at 50% 0%, rgba(0,200,255,0.06) 0%, transparent 60%),
-                radial-gradient(ellipse at 100% 100%, rgba(204,17,17,0.04) 0%, transparent 50%);
+    background:
+      radial-gradient(ellipse at 50% 0%,   rgba(0,200,255,0.10) 0%, transparent 55%),
+      radial-gradient(ellipse at 0% 100%,   rgba(0,200,255,0.05) 0%, transparent 45%),
+      radial-gradient(ellipse at 100% 100%, rgba(204,17,17,0.06) 0%, transparent 45%);
   }
   body.light::before {
     background:
-      linear-gradient(rgba(0,100,200,0.04) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,100,200,0.04) 1px, transparent 1px);
-    background-size: 40px 40px;
+      linear-gradient(rgba(0,100,200,0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,100,200,0.07) 1px, transparent 1px);
+    background-size: 44px 44px;
   }
   @keyframes bgshift {
     0%   { background-position: 0 0, 0 0; }
-    100% { background-position: 40px 40px, 40px 40px; }
+    100% { background-position: 44px 44px, 44px 44px; }
   }
 </style>
 <!-- v1772868914 -->
