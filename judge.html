@@ -121,17 +121,8 @@
   }
   #flash {
     position:fixed; inset:0; z-index:10000; pointer-events:none;
-    background:rgba(11,187,68,0.55);
+    background:rgba(11,187,68,0.6);
     opacity:0; visibility:hidden;
-    transition: none;
-  }
-  #flash.go {
-    animation: flashgo 0.8s ease-out forwards;
-    visibility:visible;
-  }
-  @keyframes flashgo {
-    0%   { opacity:0.9; }
-    100% { opacity:0;   }
   }
 50%  { transform: translate(-3%, 2%) scale(1.10); opacity: 1.0; }
     100% { transform: translate(2%, -3%) scale(0.95); opacity: 0.8; }
@@ -350,7 +341,20 @@ function t(key) { return (LANG[lang] || LANG.pl)[key] || key; }
     const mb=document.getElementById('msgBox');
     if(s.adminMessage){mb.textContent=s.adminMessage;mb.className='msg show '+(s.msgColor||'yellow');}else{mb.textContent='';mb.className='msg';}
 
-    if(s.goSignalGiven && !prevGo){ prevGo=true; var f=document.getElementById('flash'); if(f){ f.classList.remove('go'); void f.offsetWidth; f.classList.add('go'); } }
+    if(s.goSignalGiven && !prevGo){
+      prevGo=true;
+      var f=document.getElementById('flash');
+      if(f){
+        f.style.animation='none';
+        f.style.opacity='0.9';
+        f.style.visibility='visible';
+        setTimeout(function(){
+          f.style.transition='opacity 0.8s ease-out';
+          f.style.opacity='0';
+          setTimeout(function(){ f.style.visibility='hidden'; f.style.transition='none'; }, 850);
+        }, 50);
+      }
+    }
     if(!s.goSignalGiven) prevGo=false;
     const cd=document.getElementById('cd');
     if(s.judgeReady&&s.tvReady&&!s.goSignalGiven){if(!rAt){rAt=Date.now();startCD();}}
