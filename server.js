@@ -551,6 +551,7 @@ http.createServer(async (req, res) => {
       if (findAdmin(b.newLogin)) { json(res,400,{ok:false,error:'Login zajęty'}); return; }
       me.login = b.newLogin;
     }
+    if (b.newEmail) me.email = b.newEmail;
     saveData();
     json(res,200,{ok:true}); return;
   }
