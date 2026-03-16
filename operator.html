@@ -279,54 +279,6 @@
     }
     if (accent) document.documentElement.style.setProperty('--accent', accent);
   }
-
-
-  // ── PUSH NOTIFICATIONS ─────────────────────────────────────
-  var notifyEnabled = false;
-  var prevJudgeReady = null;
-  var prevTvReady    = null;
-
-  function requestNotify() {
-    if (!('Notification' in window)) return;
-    Notification.requestPermission().then(function(p) {
-      notifyEnabled = p === 'granted';
-    });
-  }
-
-  function sendNotify(title, body, color) {
-    if (!notifyEnabled || document.hasFocus()) return;
-    try {
-      var n = new Notification(title, {
-        body: body,
-        icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="%230A0C0F"/><text y="44" x="8" font-size="40" font-family="Arial Black">🏁</text></svg>',
-        badge: '',
-        tag: 'race-ready-status',
-        silent: false
-      });
-      setTimeout(function(){ n.close(); }, 4000);
-    } catch(e) {}
-  }
-
-  function checkNotifications(s) {
-    if (prevJudgeReady !== null) {
-      if (s.judgeReady && !prevJudgeReady)
-        sendNotify('✅ SĘDZIA GOTOWY', 'Sędzia potwierdził gotowość', '#00EE55');
-      if (!s.judgeReady && prevJudgeReady)
-        sendNotify('❌ SĘDZIA ANULOWAŁ', 'Sędzia cofnął gotowość', '#FF4444');
-    }
-    if (prevTvReady !== null) {
-      if (s.tvReady && !prevTvReady)
-        sendNotify('✅ TV GOTOWY', 'TV / Reżyser potwierdził gotowość', '#00EE55');
-      if (!s.tvReady && prevTvReady)
-        sendNotify('❌ TV ANULOWAŁ', 'TV cofnął gotowość', '#FF4444');
-    }
-    prevJudgeReady = s.judgeReady;
-    prevTvReady    = s.tvReady;
-  }
-
-  // Request permission on first interaction
-  document.addEventListener('click', function() {
-    if (!notifyEnabled && Notification.permission !== 'denied') requestNotify();
   }, {once: true});
   requestNotify();
 
@@ -407,7 +359,6 @@ function t(key) { return (LANG[lang] || LANG.pl)[key] || key; }
 
   var lastState = {};
   function apply(s){
-    checkNotifications(s);
     lastState = s;
     // System ON/OFF
     const ov = document.getElementById('sysOverlay');
@@ -482,7 +433,20 @@ function t(key) { return (LANG[lang] || LANG.pl)[key] || key; }
     const goBtn=document.getElementById('goBtn'), goHint=document.getElementById('goHint'), fb=document.getElementById('firedBanner');
     if(s.goSignalGiven){
       goBtn.className='go-btn fired'; goHint.textContent=t('signal_sent'); goHint.className='go-hint'; fb.textContent=t('rider_released'); fb.className='fired-banner show';
-      if(!prevGo){ prevGo=true; var f=document.getElementById('flash'); f.classList.remove('go'); void f.offsetWidth; f.classList.add('go'); }
+      if(!prevGo){
+      prevGo=true;
+      var f=document.getElementById('flash');
+      if(f){
+        f.style.animation='none';
+        f.style.opacity='0.9';
+        f.style.visibility='visible';
+        setTimeout(function(){
+          f.style.transition='opacity 0.8s ease-out';
+          f.style.opacity='0';
+          setTimeout(function(){ f.style.visibility='hidden'; f.style.transition='none'; }, 850);
+        }, 50);
+      }
+    }
       // flash removed per user request
     } else if(canGo){
       goBtn.className='go-btn ready'; goHint.textContent=t('press_go'); goHint.className='go-hint can'; fb.className='fired-banner';
