@@ -941,14 +941,27 @@ async function addAdmin() {
   if (!login || !password) { showMsg('naErr','Wypełnij pola'); return; }
   const r = await fetch('/api/admins/add', {
     method:'POST', headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({login, password})
+    body:JSON.stringify({login, password, email: document.getElementById('naEmail').value.trim()})
   });
   const d = await r.json();
   if (d.ok) {
     document.getElementById('naLogin').value = '';
+    document.getElementById('naEmail').value = '';
     document.getElementById('naPwd').value = '';
     showMsg('naOk',''); loadAdmins();
   } else { showMsg('naErr', d.error || 'Błąd'); }
+}
+
+async function blockAdmin(login, block) {
+  var msg = block ? 'Zablokować admina '+login+'? System przejdzie w tryb offline.' : 'Odblokować admina '+login+'?';
+  if (!confirm(msg)) return;
+  var r = await fetch('/api/admins/block', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({login, blocked: block})
+  });
+  var d = await r.json();
+  if (d.ok) loadAdmins();
+  else alert(d.error || 'Błąd');
 }
 
 async function deleteAdmin(login) {
@@ -1029,6 +1042,7 @@ function showToast(msg) {
     <div id="addAdminSection" style="border-top:1px solid #2A3040; padding-top:16px; margin-top:16px;">
       <h2 style="margin-bottom:12px;">➕ DODAJ DRUGIEGO ADMINA</h2>
       <input id="naLogin"   placeholder="Login" />
+      <input id="naEmail" type="email" placeholder="Email (do resetu hasła)" />
       <input id="naPwd" type="password" placeholder="Hasło" />
       <p class="msg-ok" id="naOk">✓ Dodano admina</p>
       <p class="msg-err" id="naErr"></p>
