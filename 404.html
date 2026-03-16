@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>404 — Race Ready</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      min-height: 100%; background: #0A0C0F; color: #F0F4FF;
+      font-family: "Arial Black", Arial, sans-serif;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background:
+        linear-gradient(rgba(0,200,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,200,255,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      animation: bgshift 20s linear infinite;
+    }
+    body::after {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background: radial-gradient(ellipse at 50% 30%, rgba(0,200,255,0.07) 0%, transparent 60%);
+    }
+    @keyframes bgshift {
+      0%   { background-position: 0 0, 0 0; }
+      100% { background-position: 40px 40px, 40px 40px; }
+    }
+    .wrap {
+      position: relative; z-index: 1;
+      text-align: center; padding: 40px 20px;
+    }
+    .num {
+      font-size: clamp(100px, 25vw, 180px);
+      font-weight: 900; letter-spacing: 0.05em;
+      color: #00C8FF;
+      text-shadow: 0 0 40px rgba(0,200,255,0.5), 0 0 80px rgba(0,200,255,0.2);
+      line-height: 1; animation: pulse 3s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%,100% { text-shadow: 0 0 40px rgba(0,200,255,0.5), 0 0 80px rgba(0,200,255,0.2); }
+      50%     { text-shadow: 0 0 60px rgba(0,200,255,0.8), 0 0 120px rgba(0,200,255,0.4); }
+    }
+    .flag { font-size: clamp(40px,10vw,70px); margin: 10px 0; animation: spin 4s ease-in-out infinite; display: inline-block; }
+    @keyframes spin {
+      0%,100% { transform: rotate(-10deg); }
+      50%     { transform: rotate(10deg); }
+    }
+    .title {
+      font-size: clamp(14px,3vw,22px); letter-spacing: 0.2em;
+      color: #7A8090; margin: 8px 0 6px; text-transform: uppercase;
+    }
+    .sub {
+      font-size: clamp(11px,2vw,15px); color: #3A4050;
+      letter-spacing: 0.1em; margin-bottom: 32px;
+      font-family: "Courier New", monospace;
+    }
+    .btn {
+      display: inline-block; background: #00C8FF; color: #000;
+      font-family: "Arial Black", Arial, sans-serif; font-weight: 900;
+      font-size: 13px; letter-spacing: 0.15em; text-transform: uppercase;
+      padding: 14px 32px; border-radius: 8px; text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .btn:hover { opacity: 0.85; }
+    .powered {
+      position: fixed; bottom: 10px; left: 0; right: 0;
+      text-align: center; font-size: 9px; font-weight: 700;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: #fff; opacity: 0.18;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="num">404</div>
+    <div class="flag">🏁</div>
+    <div class="title">Strona nie znaleziona</div>
+    <div class="sub">// PAGE_NOT_FOUND — check your URL</div>
+    <a href="/" class="btn">← Wróć do strony głównej</a>
+  </div>
+  <div class="powered">Powered by LIVEMOTION</div>
+</body>
+</html>
