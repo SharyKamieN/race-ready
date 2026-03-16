@@ -7,7 +7,7 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { min-height: 100%; color: #F0F4FF; font-family: Arial, Helvetica, sans-serif; font-size: 15px; }
-    header { background: #111418; border-bottom: 2px solid #1E2530; padding: 14px 28px; display: flex; align-items: center; justify-content: space-between; gap: 12px; position: sticky; top: 0; z-index: 100; }
+    header { background: rgba(17,20,24,0.92); border-bottom: 2px solid #1E2530; padding: 14px 28px; display: flex; align-items: center; justify-content: space-between; gap: 12px; position: sticky; top: 0; z-index: 100; }
     .hlogo { font-family: "Arial Black", Arial, sans-serif; font-weight: 900; font-size: 20px; letter-spacing: 0.08em; color: #00C8FF; }
     .hsub  { font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; color: #7A8090; }
     .conn  { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; }
@@ -15,7 +15,7 @@
     .conn.offline { background: rgba(220,30,30,0.18); color: #FF4444; border: 1px solid #FF4444; }
 
     .page { max-width: 960px; margin: 0 auto; padding: 28px 20px 60px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
-    .card { background: #111418; border: 1.5px solid #1E2530; border-radius: 12px; padding: 22px 24px; display: flex; flex-direction: column; gap: 16px; }
+    .card { background: rgba(17,20,24,0.85); border: 1.5px solid #1E2530; border-radius: 12px; padding: 22px 24px; display: flex; flex-direction: column; gap: 16px; }
     .card.full { grid-column: 1 / -1; }
     .card-title { font-family: "Arial Black", Arial, sans-serif; font-weight: 900; font-size: 13px; letter-spacing: 0.2em; text-transform: uppercase; color: #00C8FF; border-bottom: 1px solid #1E2530; padding-bottom: 12px; }
 
@@ -63,8 +63,8 @@
 
     /* POWER SWITCH */
     .power-card { grid-column: 1 / -1; border-radius: 12px; padding: 20px 28px; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; transition: border-color 0.3s, box-shadow 0.3s; }
-    .power-card.off { background: #1A0A0A; border: 2px solid #FF2222; box-shadow: 0 0 24px rgba(220,30,30,0.3); }
-    .power-card.on  { background: #0A1A0E; border: 2px solid #00EE55; box-shadow: 0 0 32px rgba(11,187,68,0.4); }
+    .power-card.off { background: rgba(26,10,10,0.88); border: 2px solid #FF2222; box-shadow: 0 0 24px rgba(220,30,30,0.3); }
+    .power-card.on  { background: rgba(10,26,14,0.88); border: 2px solid #00EE55; box-shadow: 0 0 32px rgba(11,187,68,0.4); }
     .power-info h2  { font-family: "Arial Black", Arial, sans-serif; font-weight: 900; font-size: 16px; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 4px; }
     .power-info p   { font-size: 13px; color: #7A8090; font-family: Arial, sans-serif; }
     .power-right    { display: flex; align-items: center; gap: 20px; }
@@ -164,7 +164,7 @@
   .msg-ok  { color:#00EE55; font-size:12px; margin-top:8px; display:none; }
   .msg-err { color:#FF3333; font-size:12px; margin-top:8px; display:none; }
   :root { --accent: #00C8FF; --border: #2A3040; }
-  body.light { background: #D8E4F0; color: #080C18; }
+  body.light { color: #080C18; }
   body.light .card { background: #EDF2FA; border-color: #B0BDD0; }
   body.light input, body.light select { background: #fff; border-color: #B0BDD0; color: #080C18; }
   .accent-dot {
