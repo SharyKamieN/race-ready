@@ -137,6 +137,33 @@
     0%   { opacity:1; }
     100% { opacity:0; display:none; }
   }
+
+  /* ── ANIMATED BACKGROUND ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: -1;
+    background:
+      linear-gradient(rgba(0,200,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,200,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    animation: bgshift 20s linear infinite;
+  }
+  body::after {
+    content: '';
+    position: fixed; inset: 0; z-index: -1;
+    background: radial-gradient(ellipse at 50% 0%, rgba(0,200,255,0.06) 0%, transparent 60%),
+                radial-gradient(ellipse at 100% 100%, rgba(204,17,17,0.04) 0%, transparent 50%);
+  }
+  body.light::before {
+    background:
+      linear-gradient(rgba(0,100,200,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,100,200,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+  @keyframes bgshift {
+    0%   { background-position: 0 0, 0 0; }
+    100% { background-position: 40px 40px, 40px 40px; }
+  }
 </style>
 <!-- v1772868914 -->
 </head>
@@ -227,6 +254,56 @@
     if (accent) document.documentElement.style.setProperty('--accent', accent);
   }
 
+
+  // ── PUSH NOTIFICATIONS ─────────────────────────────────────
+  var notifyEnabled = false;
+  var prevJudgeReady = null;
+  var prevTvReady    = null;
+
+  function requestNotify() {
+    if (!('Notification' in window)) return;
+    Notification.requestPermission().then(function(p) {
+      notifyEnabled = p === 'granted';
+    });
+  }
+
+  function sendNotify(title, body, color) {
+    if (!notifyEnabled || document.hasFocus()) return;
+    try {
+      var n = new Notification(title, {
+        body: body,
+        icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="%230A0C0F"/><text y="44" x="8" font-size="40" font-family="Arial Black">🏁</text></svg>',
+        badge: '',
+        tag: 'race-ready-status',
+        silent: false
+      });
+      setTimeout(function(){ n.close(); }, 4000);
+    } catch(e) {}
+  }
+
+  function checkNotifications(s) {
+    if (prevJudgeReady !== null) {
+      if (s.judgeReady && !prevJudgeReady)
+        sendNotify('✅ SĘDZIA GOTOWY', 'Sędzia potwierdził gotowość', '#00EE55');
+      if (!s.judgeReady && prevJudgeReady)
+        sendNotify('❌ SĘDZIA ANULOWAŁ', 'Sędzia cofnął gotowość', '#FF4444');
+    }
+    if (prevTvReady !== null) {
+      if (s.tvReady && !prevTvReady)
+        sendNotify('✅ TV GOTOWY', 'TV / Reżyser potwierdził gotowość', '#00EE55');
+      if (!s.tvReady && prevTvReady)
+        sendNotify('❌ TV ANULOWAŁ', 'TV cofnął gotowość', '#FF4444');
+    }
+    prevJudgeReady = s.judgeReady;
+    prevTvReady    = s.tvReady;
+  }
+
+  // Request permission on first interaction
+  document.addEventListener('click', function() {
+    if (!notifyEnabled && Notification.permission !== 'denied') requestNotify();
+  }, {once: true});
+  requestNotify();
+
   // ── i18n ───────────────────────────────────────────────────────
 var LANG = {
   pl: {
@@ -303,7 +380,9 @@ function t(key) { return (LANG[lang] || LANG.pl)[key] || key; }
   }
 
   var lastState = {};
-  function apply(s){ lastState = s;
+  function apply(s){
+    checkNotifications(s);
+    lastState = s;
     // System ON/OFF
     const ov = document.getElementById('sysOverlay');
     ov.style.display = s.systemActive ? 'none' : 'flex';
