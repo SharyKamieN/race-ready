@@ -416,7 +416,7 @@ var timerInterval = null;
   var _origFetch = window.fetch;
   window.fetch = function() {
     return _origFetch.apply(this, arguments).then(function(r) {
-      if ((r.status === 401 || r.status === 403) && r.url.indexOf('/api/') !== -1) {
+      if ((r.status === 401) && r.url.indexOf('/api/') !== -1) {
         window.location.href = '/login';
       }
       return r;
@@ -900,7 +900,8 @@ async function deleteProfile(id) {
 async function loadAdmins() {
   const r = await fetch('/api/admins');
   if (!r.ok) {
-    document.getElementById('adminsList').innerHTML = '';
+    // Non-superadmin — show only change password, hide admin list
+    document.getElementById('adminsList').innerHTML = '<p style="color:#7A8090;font-size:12px;margin-bottom:8px;">Brak uprawnień do zarządzania adminami.</p>';
     document.getElementById('addAdminSection').style.display = 'none';
     return;
   }
@@ -921,16 +922,18 @@ async function changePassword() {
   const oldPassword = document.getElementById('cpOldPwd').value;
   const newPassword = document.getElementById('cpNewPwd').value;
   const newLogin    = document.getElementById('cpNewLogin').value.trim();
+  const newEmail    = document.getElementById('cpNewEmail').value.trim();
   if (!oldPassword || !newPassword) { showMsg('cpErr','Wypełnij pola'); return; }
   const r = await fetch('/api/admins/change-password', {
     method:'POST', headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({oldPassword, newPassword, newLogin: newLogin||undefined})
+    body:JSON.stringify({oldPassword, newPassword, newLogin: newLogin||undefined, newEmail: newEmail||undefined})
   });
   const d = await r.json();
   if (d.ok) {
     document.getElementById('cpOldPwd').value = '';
     document.getElementById('cpNewPwd').value = '';
     document.getElementById('cpNewLogin').value = '';
+    document.getElementById('cpNewEmail').value = '';
     showMsg('cpOk','');
   } else { showMsg('cpErr', d.error || 'Błąd'); }
 }
@@ -1033,6 +1036,7 @@ function showToast(msg) {
       <h2 style="margin-bottom:12px;">🔑 ZMIEŃ SWOJE DANE</h2>
       <input id="cpOldPwd"  type="password" placeholder="Stare hasło" />
       <input id="cpNewLogin" placeholder="Nowy login (opcjonalnie)" />
+      <input id="cpNewEmail" type="email" placeholder="Nowy email (do resetu hasła, opcjonalnie)" />
       <input id="cpNewPwd"  type="password" placeholder="Nowe hasło (min. 4 znaki)" />
       <p class="msg-ok" id="cpOk">✓ Zapisano</p>
       <p class="msg-err" id="cpErr"></p>
