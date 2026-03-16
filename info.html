@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Instrukcja obsługi — Race Ready</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { background: #0A0C0F; }
+    body { background: transparent; color: #F0F4FF; font-family: Arial, Helvetica, sans-serif;
+           padding: 24px 20px 60px; max-width: 700px; margin: 0 auto; }
+    body::before {
+      content: ''; position: fixed; inset: -20%; z-index: -1;
+      background:
+        radial-gradient(ellipse 70% 60% at 15% 20%, rgba(0,200,255,0.10) 0%, transparent 55%),
+        radial-gradient(ellipse 55% 50% at 85% 80%, rgba(0,80,200,0.08) 0%, transparent 50%),
+        radial-gradient(ellipse 50% 40% at 80% 10%, rgba(120,0,200,0.07) 0%, transparent 45%);
+      animation: bgmove 14s ease-in-out infinite alternate;
+    }
+    @keyframes bgmove {
+      0%   { transform: translate(0%, 0%); }
+      100% { transform: translate(4%, 4%); }
+    }
+    h1 { font-family: "Arial Black", Arial, sans-serif; font-size: clamp(20px,5vw,30px);
+         color: #00C8FF; letter-spacing: 0.15em; text-transform: uppercase;
+         margin-bottom: 6px; }
+    .sub { color: #7A8090; font-size: 13px; letter-spacing: 0.1em; margin-bottom: 32px; }
+    .section { background: rgba(17,20,24,0.85); border: 1.5px solid #1E2530;
+               border-radius: 12px; padding: 20px 24px; margin-bottom: 16px; }
+    .section-title { font-family: "Arial Black", Arial, sans-serif; font-size: 14px;
+                     font-weight: 900; letter-spacing: 0.15em; text-transform: uppercase;
+                     margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid #1E2530; }
+    .role-judge { color: #FF4444; }
+    .role-tv    { color: #FF4444; }
+    .role-op    { color: #00C8FF; }
+    .role-admin { color: #FFD200; }
+    .step { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 12px; }
+    .step-num { background: #1E2530; border-radius: 50%; width: 28px; height: 28px;
+                display: flex; align-items: center; justify-content: center;
+                font-weight: 900; font-size: 12px; flex-shrink: 0; color: #00C8FF; }
+    .step p { font-size: 14px; line-height: 1.6; color: #C0C8D8; }
+    .step strong { color: #F0F4FF; }
+    .tip { background: rgba(0,200,255,0.07); border-left: 3px solid #00C8FF;
+           border-radius: 0 8px 8px 0; padding: 10px 14px; margin-top: 10px; 
+           font-size: 13px; color: #C0C8D8; line-height: 1.5; }
+    .tip strong { color: #00C8FF; }
+    .warn { background: rgba(255,136,0,0.08); border-left: 3px solid #FF8800;
+            border-radius: 0 8px 8px 0; padding: 10px 14px; margin-top: 10px;
+            font-size: 13px; color: #C0C8D8; }
+    .warn strong { color: #FF8800; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 4px;
+             font-size: 11px; font-weight: 700; letter-spacing: 0.08em; margin-right: 4px; }
+    .badge.red    { background: rgba(204,17,17,0.2); color: #FF4444; border: 1px solid #CC1111; }
+    .badge.green  { background: rgba(11,187,68,0.2); color: #00EE55; border: 1px solid #00EE55; }
+    .badge.blue   { background: rgba(0,200,255,0.15); color: #00C8FF; border: 1px solid #00C8FF; }
+    .badge.yellow { background: rgba(255,210,0,0.15); color: #FFD200; border: 1px solid #FFD200; }
+    .flow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
+    .flow-item { background: #1E2530; border-radius: 8px; padding: 8px 14px;
+                 font-size: 13px; font-weight: 700; letter-spacing: 0.05em; }
+    .flow-arrow { color: #00C8FF; font-size: 18px; }
+    .powered { text-align: center; margin-top: 40px; opacity: 0.2;
+               font-size: 9px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; }
+    a { color: #00C8FF; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <h1>🏁 Race Ready</h1>
+  <div class="sub">INSTRUKCJA OBSŁUGI — wersja dla obsługi zawodów</div>
+
+  <!-- PRZEPŁYW -->
+  <div class="section">
+    <div class="section-title" style="color:#00C8FF;">⚡ Przepływ startu</div>
+    <div class="flow">
+      <div class="flow-item">Admin <span style="color:#FFD200">SYSTEM ON</span></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-item">Sędzia <span style="color:#00EE55">GOTOWY</span></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-item">TV <span style="color:#00EE55">GOTOWY</span></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-item">Operator <span style="color:#00C8FF">GO</span></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-item" style="color:#00EE55;">🟢 START!</div>
+    </div>
+    <div class="tip"><strong>Automatyczny reset</strong> — po naciśnięciu GO system automatycznie resetuje się po 5 sekundach i jest gotowy na następny start.</div>
+  </div>
+
+  <!-- SĘDZIA -->
+  <div class="section">
+    <div class="section-title role-judge">⚖ Panel Sędziego — /judge</div>
+    <div class="step">
+      <div class="step-num">1</div>
+      <p>Wejdź na stronę <strong>/judge</strong> lub zeskanuj QR kod z panelu admina</p>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <p>Gdy zawodnik jest gotowy do startu — <strong>naciśnij duży czerwony przycisk</strong> (lub spację na klawiaturze). Przycisk zmieni kolor na <span style="color:#00EE55">zielony</span>.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <p>Jeśli chcesz anulować gotowość — <strong>naciśnij przycisk ponownie</strong>.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <p>Po sygnale GO zobaczysz <strong>zielony błysk</strong> ekranu — zawodnik wypuszczony.</p>
+    </div>
+    <div class="tip"><strong>Skrót klawiszowy:</strong> Spacja = naciśnięcie przycisku READY</div>
+    <div class="warn"><strong>Uwaga:</strong> Nie naciskaj przycisku dopóki zawodnik nie jest gotowy w bramce startowej.</div>
+  </div>
+
+  <!-- TV -->
+  <div class="section">
+    <div class="section-title role-tv">📺 Panel TV / Reżyser — /tv</div>
+    <div class="step">
+      <div class="step-num">1</div>
+      <p>Wejdź na stronę <strong>/tv</strong> lub zeskanuj QR kod z panelu admina</p>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <p>Gdy kamera jest gotowa na start — <strong>naciśnij duży przycisk TV</strong>. Przycisk zmieni kolor na <span style="color:#00EE55">zielony</span>.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <p>Widzisz status sędziego na dole ekranu — czekaj aż <strong>obaj będą gotowi</strong> przed daniem sygnału.</p>
+    </div>
+    <div class="tip"><strong>Skrót klawiszowy:</strong> Spacja = naciśnięcie przycisku READY</div>
+  </div>
+
+  <!-- OPERATOR -->
+  <div class="section">
+    <div class="section-title role-op">🚩 Panel Operatora — /operator</div>
+    <div class="step">
+      <div class="step-num">1</div>
+      <p>Wpisz numer <strong>Current Rider</strong> (aktualny zawodnik) i <strong>Next Rider</strong> (następny w kolejce).</p>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <p>Obserwuj karty <span class="badge red">JUDGE</span> i <span class="badge red">TV</span> — czekaj aż obie zmienią się na <span class="badge green">GOTOWY</span>.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <p>Gdy obaj gotowi — naciśnij <strong>START / GO</strong>. Ekran miga na zielono.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <p>System automatycznie resetuje się po 5 sekundach. Możesz też użyć <strong>Reset ręczny</strong>.</p>
+    </div>
+    <div class="tip"><strong>Numery zawodników:</strong> Na telefonie automatycznie otwiera się klawiatura numeryczna.</div>
+  </div>
+
+  <!-- KOMUNIKATY -->
+  <div class="section">
+    <div class="section-title" style="color:#FFD200;">💬 Komunikaty od admina</div>
+    <p style="font-size:14px;color:#C0C8D8;margin-bottom:12px;">Admin może wysłać komunikat który pojawi się na panelach sędziego, TV i operatora:</p>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div><span class="badge yellow">ŻÓŁTY</span> <span style="font-size:13px;color:#C0C8D8;">BREAK / STAND BY / DELAY — przerwa, oczekiwanie</span></div>
+      <div><span class="badge" style="background:rgba(255,102,0,0.2);color:#FF6600;border:1px solid #FF6600;">POMARAŃCZOWY</span> <span style="font-size:13px;color:#C0C8D8;">ATTENTION / COURSE CHECK — uwaga</span></div>
+      <div><span class="badge red">CZERWONY</span> <span style="font-size:13px;color:#C0C8D8;">STOP — zatrzymanie</span></div>
+      <div><span class="badge red" style="animation:blink 1s infinite;">🚨 EMERGENCY</span> <span style="font-size:13px;color:#C0C8D8;">Nagły przypadek — pulsujący czerwony</span></div>
+    </div>
+  </div>
+
+  <!-- PROBLEMY -->
+  <div class="section">
+    <div class="section-title" style="color:#FF8800;">🔧 Typowe problemy</div>
+    <div class="step">
+      <div class="step-num">?</div>
+      <p><strong>Panel pokazuje "System offline"</strong> — Admin musi włączyć system przełącznikiem SYSTEM ON/OFF w panelu admina.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">?</div>
+      <p><strong>Przycisk GO jest szary</strong> — Nie wszyscy są gotowi. Obaj (sędzia I TV) muszą nacisnąć gotowość.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">?</div>
+      <p><strong>Wyświetla "Offline" w nagłówku</strong> — Problem z połączeniem. Odśwież stronę lub sprawdź internet.</p>
+    </div>
+  </div>
+
+  <div class="powered">Powered by LIVEMOTION</div>
+</body>
+</html>
