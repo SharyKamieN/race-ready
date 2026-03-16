@@ -173,6 +173,33 @@
   }
   .accent-dot:hover { transform:scale(1.15); }
   .accent-dot.active { border-color:#fff; box-shadow:0 0 10px rgba(255,255,255,0.4); }
+
+  /* ── ANIMATED BACKGROUND ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: -1;
+    background:
+      linear-gradient(rgba(0,200,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,200,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    animation: bgshift 20s linear infinite;
+  }
+  body::after {
+    content: '';
+    position: fixed; inset: 0; z-index: -1;
+    background: radial-gradient(ellipse at 50% 0%, rgba(0,200,255,0.06) 0%, transparent 60%),
+                radial-gradient(ellipse at 100% 100%, rgba(204,17,17,0.04) 0%, transparent 50%);
+  }
+  body.light::before {
+    background:
+      linear-gradient(rgba(0,100,200,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,100,200,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+  @keyframes bgshift {
+    0%   { background-position: 0 0, 0 0; }
+    100% { background-position: 40px 40px, 40px 40px; }
+  }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
 </head>
@@ -271,7 +298,8 @@
     <div class="card-title">⚙ Ustawienia eventu</div>
     <div style="display:flex;gap:12px;align-items:flex-start;">
       <div style="flex:1;">
-        <label style="margin-bottom:8px;display:block;">Nazwa zawodów<input type="text" id="eventName" placeholder="Nazwa wydarzenia"></label>
+        <label style="margin-bottom:4px;display:block;">Nazwa zawodów<input type="text" id="eventName" placeholder="Nazwa wydarzenia"></label>
+        <label style="margin-bottom:8px;display:block;margin-top:8px;">Nazwa aplikacji (tytuł paneli)<input type="text" id="appNameInput" placeholder="RACE READY"></label>
         <div style="display:flex;gap:8px;margin-top:4px;">
           <button class="save-btn" onclick="saveEventInfo()" style="flex:1;padding:10px;">Zapisz i wyślij</button>
           <button class="reset-btn" onclick="removeLogo()" style="font-size:11px;padding:10px 12px;">✕ Logo</button>
