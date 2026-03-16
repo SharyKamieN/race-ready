@@ -221,6 +221,23 @@
     if (accent) document.documentElement.style.setProperty('--accent', accent);
   }
 
+
+  // ── WAKE LOCK ────────────────────────────────────────
+  var wakeLock = null;
+  async function requestWakeLock() {
+    if ('wakeLock' in navigator) {
+      try {
+        wakeLock = await navigator.wakeLock.request('screen');
+        console.log('Wake lock active');
+      } catch(e) { console.log('Wake lock error:', e); }
+    }
+  }
+  // Re-acquire on visibility change (required by browsers)
+  document.addEventListener('visibilitychange', function() {
+    if (document.visibilityState === 'visible') requestWakeLock();
+  });
+  requestWakeLock();
+
   // ── i18n ───────────────────────────────────────────────────────
 var LANG = {
   pl: {
