@@ -155,6 +155,15 @@
     50%  { transform: translate(-4%, 3% ); opacity: 1.0; }
     100% { transform: translate(3%, -4% ); opacity: 0.8; }
   }
+  #flash {
+    position:fixed; inset:0; z-index:10000; pointer-events:none;
+    background:rgba(11,187,68,0.55);
+    opacity:0;
+  }
+  @keyframes flashgo {
+    0%   { opacity:0.85; }
+    100% { opacity:0; }
+  }
 </style>
   <!-- PWA -->
   <link rel="manifest" href="/manifest-tv.json">
@@ -325,16 +334,7 @@ function t(key) { return (LANG[lang] || LANG.pl)[key] || key; }
     if(s.goSignalGiven && !prevGo){
       prevGo=true;
       var f=document.getElementById('flash');
-      if(f){
-        f.style.animation='none';
-        f.style.opacity='0.9';
-        f.style.visibility='visible';
-        setTimeout(function(){
-          f.style.transition='opacity 0.8s ease-out';
-          f.style.opacity='0';
-          setTimeout(function(){ f.style.visibility='hidden'; f.style.transition='none'; }, 850);
-        }, 50);
-      }
+      if(f){ f.style.animation='none'; void f.offsetWidth; f.style.animation='flashgo 0.8s ease-out forwards'; }
     }
     if(!s.goSignalGiven) prevGo=false;
     const cd=document.getElementById('cd');
