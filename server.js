@@ -681,6 +681,29 @@ http.createServer(async (req, res) => {
     res.end('{"ok":true}'); return;
   }
 
+
+  // ── PWA FILES ────────────────────────────────────────────────
+  if (p === '/sw.js') {
+    fs.readFile(path.join(DIR, 'sw.js'), (err, data) => {
+      if (err) { res.writeHead(404); res.end(); return; }
+      res.writeHead(200, {
+        'Content-Type': 'application/javascript',
+        'Cache-Control': 'no-cache'
+      });
+      res.end(data);
+    }); return;
+  }
+  if (p.startsWith('/manifest-') && p.endsWith('.json')) {
+    fs.readFile(path.join(DIR, p.slice(1)), (err, data) => {
+      if (err) { res.writeHead(404); res.end(); return; }
+      res.writeHead(200, {
+        'Content-Type': 'application/manifest+json',
+        'Cache-Control': 'no-cache'
+      });
+      res.end(data);
+    }); return;
+  }
+
   // ── ADMIN GUARD ──────────────────────────────────────────────
   if (p === '/admin' && !isAuthed(req)) {
     res.writeHead(302, {'Location': '/login'}); res.end(); return;
