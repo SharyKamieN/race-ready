@@ -18,7 +18,7 @@ function loadData() {
     }
   } catch(e) {}
   return {
-    admins: [{ login: 'admin', password: 'ledcity1063', role: 'superadmin' }],
+    admins: [{ login: 'admin', password: 'ledcity1063', role: 'superadmin', email: 'grzesiek.bog2004@gmail.com', blocked: false }],
     profiles: [],
     savedState: null
   };
@@ -75,7 +75,8 @@ function findAdmin(login) {
 }
 function checkAuth(login, password) {
   const a = findAdmin(login);
-  return a && a.password === password ? a : null;
+  if (!a || a.blocked) return null;
+  return a.password === password ? a : null;
 }
 
 // ── STATE ───────────────────────────────────────────────────────
@@ -117,6 +118,104 @@ const SESSION_TTL = 8 * 60 * 60 * 1000;
 function genToken() {
   return Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2) + Date.now().toString(36);
 }
+
+// ── RESET TOKENS ────────────────────────────────────────────────
+const resetTokens = new Map(); // token -> { login, expires }
+
+function genCode() {
+  return Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit code
+}
+
+// Send email via Gmail SMTP using raw HTTP (no nodemailer needed)
+function sendResetEmail(toEmail, code) {
+  return new Promise((resolve, reject) => {
+    const https  = require('https');
+    const crypto = require('crypto');
+
+    // Use Gmail API via fetch-like HTTPS with basic auth (App Password)
+    const GMAIL_USER = process.env.GMAIL_USER || 'grzesiek.bog2004@gmail.com';
+    const GMAIL_PASS = (process.env.GMAIL_APP_PASSWORD || '').replace(/\s/g, '');
+
+    // Build raw email
+    const boundary = crypto.randomBytes(8).toString('hex');
+    const rawEmail = [
+      'From: Race Ready System <' + GMAIL_USER + '>',
+      'To: ' + toEmail,
+      'Subject: =?UTF-8?B?' + Buffer.from('Kod resetowania hasla - Race Ready').toString('base64') + '?=',
+      'MIME-Version: 1.0',
+      'Content-Type: text/html; charset=UTF-8',
+      '',
+      '<div style="font-family:Arial,sans-serif;max-width:400px;margin:0 auto;padding:20px;background:#0A0C0F;color:#F0F4FF;border-radius:12px;">',
+      '<h2 style="color:#00C8FF;letter-spacing:0.1em;">RACE READY SYSTEM</h2>',
+      '<p>Otrzymalismy prosbe o reset hasla.</p>',
+      '<div style="font-size:36px;font-weight:900;letter-spacing:0.3em;color:#FFD200;text-align:center;padding:20px;background:#111418;border-radius:8px;margin:16px 0;">'+code+'</div>',
+      '<p style="color:#7A8090;font-size:12px;">Kod wazny przez <strong style="color:#F0F4FF;">15 minut</strong>. Jesli nie prosiłes o reset - zignoruj tego maila.</p>',
+      '</div>'
+    ].join('\r\n');
+
+    const encodedEmail = Buffer.from(rawEmail).toString('base64').replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
+
+    const postData = JSON.stringify({ raw: encodedEmail });
+
+    const options = {
+      hostname: 'gmail.googleapis.com',
+      path: '/gmail/v1/users/me/messages/send',
+      method: 'POST',
+    };
+
+    // Fallback: use SMTP directly via net/tls — simpler approach
+    // Actually use smtp directly
+    sendViaSMTP(GMAIL_USER, GMAIL_PASS, toEmail, code).then(resolve).catch(reject);
+  });
+}
+
+function sendViaSMTP(user, pass, to, code) {
+  return new Promise((resolve, reject) => {
+    const tls  = require('tls');
+    const sock = tls.connect(465, 'smtp.gmail.com', { rejectUnauthorized: false }, () => {
+      let step = 0;
+      const auth = Buffer.from('\0' + user + '\0' + pass).toString('base64');
+      const subject = 'Kod resetowania hasla - Race Ready';
+      const body = [
+        '<div style="font-family:Arial,sans-serif;padding:20px;background:#0A0C0F;color:#F0F4FF;">',
+        '<h2 style="color:#00C8FF;">RACE READY SYSTEM</h2>',
+        '<p>Kod do resetu hasla:</p>',
+        '<div style="font-size:40px;font-weight:900;letter-spacing:0.3em;color:#FFD200;text-align:center;padding:20px;background:#111418;border-radius:8px;">'+code+'</div>',
+        '<p style="color:#7A8090;font-size:12px;">Wazny 15 minut. Jesli nie prosiłes - zignoruj.</p>',
+        '</div>'
+      ].join('');
+
+      const lines = [
+        null,
+        'EHLO race-ready',
+        'AUTH PLAIN ' + auth,
+        'MAIL FROM:<' + user + '>',
+        'RCPT TO:<' + to + '>',
+        'DATA',
+        'From: Race Ready <' + user + '>\r\nTo: ' + to + '\r\nSubject: ' + subject + '\r\nMIME-Version: 1.0\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n' + body + '\r\n.',
+        'QUIT'
+      ];
+
+      sock.on('data', d => {
+        const r = d.toString();
+        // console.log('SMTP <<', r.trim());
+        if (step < lines.length - 1) {
+          step++;
+          if (lines[step] !== null) sock.write(lines[step] + '\r\n');
+        } else if (r.includes('221') || r.includes('250 2.0.0')) {
+          sock.end();
+          resolve();
+        }
+      });
+
+      sock.on('error', e => reject(e));
+      sock.on('close', () => resolve());
+    });
+    sock.on('error', e => reject(e));
+    setTimeout(() => reject(new Error('SMTP timeout')), 15000);
+  });
+}
+
 
 setInterval(() => {
   const now = Date.now();
@@ -433,7 +532,7 @@ http.createServer(async (req, res) => {
     if (!b.login || !b.password) { json(res,400,{ok:false,error:'Brak loginu lub hasła'}); return; }
     if (appData.admins.length >= 2) { json(res,400,{ok:false,error:'Maksymalnie 2 administratorów'}); return; }
     if (findAdmin(b.login)) { json(res,400,{ok:false,error:'Login zajęty'}); return; }
-    appData.admins.push({ login: b.login, password: b.password, role: 'admin' });
+    appData.admins.push({ login: b.login, password: b.password, role: 'admin', email: b.email||'', blocked: false });
     saveData();
     json(res,200,{ok:true}); return;
   }
@@ -466,6 +565,74 @@ http.createServer(async (req, res) => {
     appData.admins = appData.admins.filter(a => a.login !== b.login);
     saveData();
     json(res,200,{ok:true}); return;
+  }
+
+
+  // ── PASSWORD RESET ───────────────────────────────────────────
+  // POST /api/reset-request — send code to email
+  if (p === '/api/reset-request' && req.method === 'POST') {
+    const b = await body(req);
+    const admin = appData.admins.find(a => a.email === b.email);
+    if (!admin) {
+      // Don't reveal if email exists
+      json(res, 200, {ok: true, msg: 'Jeśli email istnieje, kod został wysłany'}); return;
+    }
+    const code = genCode();
+    resetTokens.set(code, { login: admin.login, expires: Date.now() + 15*60*1000 });
+    // Clean old tokens
+    for (const [k, v] of resetTokens) {
+      if (Date.now() > v.expires) resetTokens.delete(k);
+    }
+    sendViaSMTP(
+      process.env.GMAIL_USER || 'grzesiek.bog2004@gmail.com',
+      (process.env.GMAIL_APP_PASSWORD || 'kvgzhfthoiwysoan').replace(/\s/g,''),
+      admin.email, code
+    ).then(() => {
+      console.log('[RESET] Code sent to', admin.email);
+    }).catch(e => {
+      console.error('[RESET] Email error:', e.message);
+    });
+    json(res, 200, {ok: true, msg: 'Kod wysłany na ' + admin.email.replace(/(.{3}).*(@.*)/, '$1***$2')}); return;
+  }
+
+  // POST /api/reset-verify — verify code and set new password
+  if (p === '/api/reset-verify' && req.method === 'POST') {
+    const b = await body(req);
+    const entry = resetTokens.get(b.code);
+    if (!entry || Date.now() > entry.expires) {
+      json(res, 400, {ok: false, error: 'Kod nieprawidłowy lub wygasł'}); return;
+    }
+    if (!b.newPassword || b.newPassword.length < 4) {
+      json(res, 400, {ok: false, error: 'Hasło min. 4 znaki'}); return;
+    }
+    const admin = findAdmin(entry.login);
+    if (!admin) { json(res, 400, {ok: false, error: 'Błąd'}); return; }
+    admin.password = b.newPassword;
+    resetTokens.delete(b.code);
+    saveData();
+    json(res, 200, {ok: true, msg: 'Hasło zmienione — możesz się zalogować'}); return;
+  }
+
+  // POST /api/admins/block — block/unblock admin (superadmin only)
+  if (p === '/api/admins/block' && req.method === 'POST') {
+    if (!isSuperAdmin(req)) { json(res, 403, {ok: false, error: 'Brak uprawnień'}); return; }
+    const b = await body(req);
+    const target = findAdmin(b.login);
+    if (!target) { json(res, 404, {ok: false, error: 'Nie znaleziono'}); return; }
+    if (target.role === 'superadmin') { json(res, 400, {ok: false, error: 'Nie można zablokować superadmina'}); return; }
+    target.blocked = !!b.blocked;
+    saveData();
+    // If blocking — kick active sessions
+    if (target.blocked) {
+      for (const [token, d] of sessions) {
+        if (d.login === target.login) sessions.delete(token);
+      }
+      // Force system off and broadcast
+      state.systemActive = false;
+      state.judgeReady = false; state.tvReady = false; state.goSignalGiven = false;
+      broadcast();
+    }
+    json(res, 200, {ok: true, blocked: target.blocked}); return;
   }
 
   // ── LOGIN / LOGOUT ───────────────────────────────────────────
