@@ -104,6 +104,7 @@ let state = {
   msgColor:     '',
   theme:        'dark',
   accentColor:  '#00C8FF',
+  appName:      'RACE READY',
   showRiders:   true,
   history:      [],
   _autoReset:   null,
@@ -279,6 +280,7 @@ function pub() {
     msgColor:     state.msgColor,
     theme:        state.theme,
     accentColor:  state.accentColor,
+    appName:      state.appName,
     showRiders:   state.showRiders,
     history:      state.history,
     ts:           Date.now(),
@@ -424,6 +426,7 @@ http.createServer(async (req, res) => {
     if(b.showRun!==undefined)      state.showRun=!!b.showRun;
     if(b.theme!==undefined)        state.theme=b.theme;
     if(b.accentColor!==undefined)  state.accentColor=b.accentColor;
+    if(b.appName!==undefined)      state.appName=b.appName;
     if(b.showRiders!==undefined)   state.showRiders=!!b.showRiders;
     if(b.timerEnabled!==undefined) state.timerEnabled=!!b.timerEnabled;
     if(b.systemActive!==undefined) { state.systemActive=!!b.systemActive; if(!state.systemActive){ state.judgeReady=false; state.tvReady=false; state.goSignalGiven=false; } }
@@ -691,7 +694,12 @@ http.createServer(async (req, res) => {
   if(p==='/admin')    file='/admin.html';
 
   fs.readFile(path.join(DIR, file), (err,data) => {
-    if(err){ res.writeHead(404); res.end('Not found: '+file); return; }
+    if(err){
+      fs.readFile(path.join(DIR, '/404.html'), (e2,d2) => {
+        res.writeHead(404, {'Content-Type':'text/html; charset=utf-8'});
+        res.end(d2 || '<h1>404 Not Found</h1>');
+      }); return;
+    }
     const ct = MIME[path.extname(file)]||'text/plain';
     const headers = {'Content-Type': ct};
     if (ct.includes('text/html')) {
