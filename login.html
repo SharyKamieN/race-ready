@@ -78,6 +78,7 @@
   <div class="logo">RACE READY</div>
   <div class="sub">Panel Administratora</div>
 
+  <div id="loginForm">
   <label>Login
     <input type="text" id="loginInput" placeholder="login" autocomplete="username">
   </label>
@@ -87,6 +88,27 @@
   <button class="btn" id="submitBtn" onclick="doLogin()">Zaloguj się</button>
   <div class="err" id="errBox"></div>
 </div>
+
+  <div id="resetForm" style="display:none;">
+    <div class="sub" style="margin-bottom:16px;">Podaj email powiązany z kontem</div>
+    <label>Email
+      <input type="email" id="resetEmail" placeholder="twoj@email.com" autocomplete="email">
+    </label>
+    <div id="resetCodeSection" style="display:none;">
+      <label style="margin-top:8px;">Kod z maila (6 cyfr)
+        <input type="text" id="resetCode" placeholder="123456" maxlength="6" style="letter-spacing:0.3em;font-size:20px;text-align:center;">
+      </label>
+      <label style="margin-top:8px;">Nowe hasło
+        <input type="password" id="resetNewPwd" placeholder="Nowe hasło">
+      </label>
+    </div>
+    <div id="resetMsg" style="font-size:12px;margin:8px 0;min-height:18px;"></div>
+    <button class="btn" id="resetBtn" onclick="handleReset()">Wyślij kod</button>
+    <div style="text-align:center;margin-top:12px;">
+      <a href="#" onclick="showLogin()" style="color:#7A8090;font-size:12px;">← Wróć do logowania</a>
+    </div>
+  </div>
+
 </div>
 
 <script>
@@ -138,6 +160,70 @@
       btn.textContent = 'Zaloguj się';
     });
   }
+
+var resetStep = 0;
+
+function showReset() {
+  document.querySelector('.lock').style.display = 'none';
+  document.querySelector('.logo').textContent = 'RESET HASŁA';
+  document.getElementById('loginForm').style.display = 'none';
+  document.getElementById('resetForm').style.display = 'block';
+  resetStep = 0;
+}
+
+function showLogin() {
+  document.querySelector('.lock').style.display = '';
+  document.querySelector('.logo').textContent = 'RACE READY';
+  document.getElementById('loginForm').style.display = 'block';
+  document.getElementById('resetForm').style.display = 'none';
+}
+
+async function handleReset() {
+  if (resetStep === 0) {
+    // Step 1: send code
+    var email = document.getElementById('resetEmail').value.trim();
+    if (!email) return;
+    document.getElementById('resetBtn').disabled = true;
+    document.getElementById('resetMsg').style.color = '#7A8090';
+    document.getElementById('resetMsg').textContent = 'Wysyłanie...';
+    var r = await fetch('/api/reset-request', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({email: email})
+    });
+    var d = await r.json();
+    document.getElementById('resetBtn').disabled = false;
+    document.getElementById('resetMsg').textContent = d.msg || 'Wysłano';
+    document.getElementById('resetMsg').style.color = '#00EE55';
+    document.getElementById('resetCodeSection').style.display = 'block';
+    document.getElementById('resetBtn').textContent = 'Zmień hasło';
+    resetStep = 1;
+  } else {
+    // Step 2: verify code + set new password
+    var code   = document.getElementById('resetCode').value.trim();
+    var newPwd = document.getElementById('resetNewPwd').value;
+    if (!code || !newPwd) {
+      document.getElementById('resetMsg').style.color = '#FF4444';
+      document.getElementById('resetMsg').textContent = 'Wypełnij wszystkie pola';
+      return;
+    }
+    document.getElementById('resetBtn').disabled = true;
+    var r = await fetch('/api/reset-verify', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({code: code, newPassword: newPwd})
+    });
+    var d = await r.json();
+    document.getElementById('resetBtn').disabled = false;
+    if (d.ok) {
+      document.getElementById('resetMsg').style.color = '#00EE55';
+      document.getElementById('resetMsg').textContent = '✓ ' + d.msg;
+      setTimeout(showLogin, 2000);
+    } else {
+      document.getElementById('resetMsg').style.color = '#FF4444';
+      document.getElementById('resetMsg').textContent = d.error || 'Błąd';
+    }
+  }
+}
+
 </script>
 
 
