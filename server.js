@@ -2,6 +2,7 @@ const http = require('http');
 const fs   = require('fs');
 const path = require('path');
 const url  = require('url');
+const zlib = require('zlib');
 
 const PORT = process.env.PORT || 8080;
 
@@ -752,8 +753,21 @@ http.createServer(async (req, res) => {
       headers['Cache-Control'] = 'no-store, no-cache, must-revalidate';
       headers['Pragma'] = 'no-cache';
     }
-    res.writeHead(200, headers);
-    res.end(data);
+    // Gzip compression for text files
+    const ae = req.headers['accept-encoding'] || '';
+    const compressible = ct.includes('text/html') || ct.includes('javascript') || ct.includes('css') || ct.includes('json');
+    if (compressible && ae.includes('gzip')) {
+      zlib.gzip(data, (e, compressed) => {
+        if (e) { res.writeHead(200, headers); res.end(data); return; }
+        headers['Content-Encoding'] = 'gzip';
+        headers['Vary'] = 'Accept-Encoding';
+        res.writeHead(200, headers);
+        res.end(compressed);
+      });
+    } else {
+      res.writeHead(200, headers);
+      res.end(data);
+    }
   });
 
 }).listen(PORT,'0.0.0.0',()=>{
