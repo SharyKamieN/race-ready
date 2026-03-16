@@ -298,6 +298,9 @@
       <button class="save-btn btn-edit" onclick="openModal('adminsModal')">
         👤 Admini
       </button>
+      <button class="save-btn btn-edit" onclick="window.open('/info','_blank')" style="border:1.5px solid #00C8FF;">
+        📖 Instrukcja
+      </button>
     </div>
     <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:8px;">
       <button class="save-btn" onclick="openAll()"
@@ -431,7 +434,10 @@
       <div class="status-item"><div class="si-label">Current Rider</div><div class="si-val blue" id="stRider1">—</div></div>
       <div class="status-item" id="stRider2wrap"><div class="si-label">Current Rider 2</div><div class="si-val blue" id="stRider2">—</div></div>
     </div>
-    <button class="reset-btn" onclick="doReset()" style="align-self:flex-start;margin-top:4px;">⟳ PEŁNY RESET RUNDY</button>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:4px;">
+      <button class="reset-btn" onclick="doReset()" style="">⟳ Reset rundy</button>
+      <button class="reset-btn" onclick="doFullReset()" style="border-color:#FF8800;color:#FF8800;" onmouseover="this.style.background='rgba(255,136,0,0.15)'" onmouseout="this.style.background='transparent'">⚡ PEŁNY RESET WSZYSTKIEGO</button>
+    </div>
   </div>
 
   <!-- ── HISTORY ── -->
@@ -706,6 +712,12 @@ function fastMsg(text, color) {
 }
 function doReset() {
   fetch('/api/reset', {method:'POST'}).catch(function(){});
+}
+function doFullReset() {
+  if (!confirm('PEŁNY RESET — wyczyści zawodników, timer, historię i komunikaty. Na pewno?')) return;
+  fetch('/api/fullreset', {method:'POST'})
+    .then(function(){ showToast('✓ Pełny reset wykonany'); })
+    .catch(function(){});
 }
 
 // ── TIMER DISPLAY ──────────────────────────────────────────────
